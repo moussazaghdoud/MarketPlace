@@ -1,0 +1,34 @@
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+}
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* FAQ accordion */
+.faq-item.active .faq-icon {
+    transform: rotate(180deg);
+}
+.faq-item.active .faq-content {
+    display: block;
+}
+.faq-item.active {
+    border-color: #4F6DF5;
+}
+
+/* Checkout modal */
+#checkout-modal.active {
+    display: flex;
+}
+
+::selection {
+    background: rgba(79, 109, 245, 0.15);
+}
