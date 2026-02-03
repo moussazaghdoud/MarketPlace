@@ -12,6 +12,7 @@ function loadContent() {
             renderHero(data.hero);
             renderFeatures(data.features);
             renderVideo(data.video);
+            renderScreenshots(data.screenshots);
             renderPricing(data.pricing);
             renderTrust(data.trust);
             renderFaq(data.faq);
@@ -31,6 +32,11 @@ function renderHero(hero) {
     document.getElementById('hero-description').textContent = hero.description;
     document.getElementById('hero-cta-primary').textContent = hero.ctaPrimary;
     document.getElementById('hero-cta-secondary').textContent = hero.ctaSecondary;
+
+    if (hero.image) {
+        var heroImg = document.getElementById('hero-image');
+        if (heroImg) heroImg.src = hero.image;
+    }
 
     var badges = document.getElementById('hero-trust-badges');
     badges.innerHTML = '';
@@ -79,6 +85,25 @@ function renderVideo(video) {
     document.getElementById('video-heading').textContent = video.heading;
     document.getElementById('video-subheading').textContent = video.subheading;
     document.getElementById('video-iframe').src = video.youtubeUrl;
+}
+
+function renderScreenshots(screenshots) {
+    if (!screenshots) return;
+    var heading = document.getElementById('screenshots-heading');
+    if (heading) heading.textContent = screenshots.heading || '';
+
+    var grid = document.getElementById('screenshots-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    screenshots.items.forEach(function (s) {
+        var div = document.createElement('div');
+        div.className = 'text-center';
+        div.innerHTML =
+            '<img src="' + escapeHtml(s.image) + '" alt="' + escapeHtml(s.alt) + '" class="rounded-xl border border-gray-200 shadow-sm w-full mb-3">' +
+            '<p class="text-sm font-medium text-gray-700">' + escapeHtml(s.label) + '</p>';
+        grid.appendChild(div);
+    });
 }
 
 function renderPricing(pricing) {

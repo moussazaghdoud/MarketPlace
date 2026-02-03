@@ -1,10 +1,25 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CONTENT_PATH = path.join(__dirname, 'data', 'content.json');
+
+// Multer storage — saves to images/ with original filename
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, 'images'));
+    },
+    filename: function (req, file, cb) {
+        // Keep original extension, sanitise name
+        const ext = path.extname(file.originalname);
+        const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
+        cb(null, base + '-' + Date.now() + ext);
+    }
+});
+const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 app.use(express.json());
 app.use(express.static(__dirname, { index: false }));
@@ -38,6 +53,15 @@ app.post('/api/content', (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Failed to save content' });
     }
+});
+
+// Upload image
+app.post('/api/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+    const relativePath = 'images/' + req.file.filename;
+    res.json({ success: true, path: relativePath });
 });
 
 app.listen(PORT, () => {

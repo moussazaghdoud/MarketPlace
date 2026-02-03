@@ -5,7 +5,28 @@
     "description": "Messaging, video conferencing, file sharing, and telephony in one secure platform. Available in 88 countries.",
     "ctaPrimary": "Start Free",
     "ctaSecondary": "Watch Demo",
-    "trustBadges": ["ISO 27001", "GDPR", "CCPA", "88+ Countries"]
+    "trustBadges": ["ISO 27001", "GDPR", "CCPA", "88+ Countries"],
+    "image": "images/rainbow-ui.jpg"
+  },
+  "screenshots": {
+    "heading": "Built for the way you work",
+    "items": [
+      {
+        "image": "images/rainbow-chat.png",
+        "label": "Chat & File Sharing",
+        "alt": "Rainbow chat and file sharing"
+      },
+      {
+        "image": "images/rainbow-video.png",
+        "label": "HD Video Calls",
+        "alt": "Rainbow video calls"
+      },
+      {
+        "image": "images/rainbow-screen.png",
+        "label": "Screen Sharing",
+        "alt": "Rainbow screen sharing"
+      }
+    ]
   },
   "features": {
     "heading": "What you can do with Rainbow",

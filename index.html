@@ -97,7 +97,7 @@
                     <div id="hero-trust-badges" class="mt-8 flex justify-center lg:justify-start gap-6 text-xs text-gray-400 font-medium"></div>
                 </div>
                 <div class="hidden lg:block">
-                    <img src="images/rainbow-ui.jpg" alt="Rainbow platform interface" class="w-full rounded-2xl shadow-lg border border-gray-100">
+                    <img id="hero-image" src="images/rainbow-ui.jpg" alt="Rainbow platform interface" class="w-full rounded-2xl shadow-lg border border-gray-100">
                 </div>
             </div>
         </div>
@@ -131,22 +131,9 @@
     <section class="py-16 px-6 bg-gray-50">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-10">
-                <h2 class="text-2xl font-bold text-gray-900">Built for the way you work</h2>
+                <h2 id="screenshots-heading" class="text-2xl font-bold text-gray-900"></h2>
             </div>
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="text-center">
-                    <img src="images/rainbow-chat.png" alt="Rainbow chat and file sharing" class="rounded-xl border border-gray-200 shadow-sm w-full mb-3">
-                    <p class="text-sm font-medium text-gray-700">Chat & File Sharing</p>
-                </div>
-                <div class="text-center">
-                    <img src="images/rainbow-video.png" alt="Rainbow video calls" class="rounded-xl border border-gray-200 shadow-sm w-full mb-3">
-                    <p class="text-sm font-medium text-gray-700">HD Video Calls</p>
-                </div>
-                <div class="text-center">
-                    <img src="images/rainbow-screen.png" alt="Rainbow screen sharing" class="rounded-xl border border-gray-200 shadow-sm w-full mb-3">
-                    <p class="text-sm font-medium text-gray-700">Screen Sharing</p>
-                </div>
-            </div>
+            <div id="screenshots-grid" class="grid md:grid-cols-3 gap-6"></div>
         </div>
     </section>
 
@@ -213,6 +200,7 @@
                 <a href="#" class="hover:text-gray-600 transition-colors">Privacy</a>
                 <a href="#" class="hover:text-gray-600 transition-colors">Terms</a>
                 <a href="https://www.al-enterprise.com/en/company/contact-us" target="_blank" class="hover:text-gray-600 transition-colors">Contact</a>
+                <a href="/admin" class="hover:text-gray-600 transition-colors">Admin</a>
             </div>
         </div>
     </footer>

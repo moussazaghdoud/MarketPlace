@@ -44,6 +44,7 @@
             <button onclick="switchTab('faq')" class="tab-btn px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap" data-tab="faq">FAQ</button>
             <button onclick="switchTab('video')" class="tab-btn px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap" data-tab="video">Video</button>
             <button onclick="switchTab('trust')" class="tab-btn px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap" data-tab="trust">Trust Bar</button>
+            <button onclick="switchTab('images')" class="tab-btn px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap" data-tab="images">Images</button>
         </div>
 
         <!-- HERO TAB -->
@@ -76,6 +77,17 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-1">Trust Badges (comma-separated)</label>
                         <input id="hero-trust-badges" type="text" class="admin-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Hero Image</label>
+                        <div class="flex items-center gap-4">
+                            <img id="hero-image-preview" src="" alt="Hero preview" class="w-32 h-20 object-cover rounded-lg border border-gray-200">
+                            <div>
+                                <input type="file" id="hero-image-file" accept="image/*" onchange="uploadImage('hero-image-file', 'hero-image-preview', 'hero-image-path')" class="text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100">
+                                <input type="hidden" id="hero-image-path">
+                                <p class="text-xs text-gray-400 mt-1">Max 5 MB. JPG, PNG, or WebP.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <button onclick="saveSection('hero')" class="mt-6 px-5 py-2.5 bg-brand-500 text-white text-sm font-medium rounded-lg hover:bg-brand-600 transition-colors">Save Hero</button>
@@ -164,6 +176,18 @@
                 <button onclick="saveSection('trust')" class="mt-6 px-5 py-2.5 bg-brand-500 text-white text-sm font-medium rounded-lg hover:bg-brand-600 transition-colors">Save Trust Bar</button>
             </div>
         </div>
+        <!-- IMAGES TAB -->
+        <div id="tab-images" class="tab-panel hidden">
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-2">Product Screenshots</h2>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Section Heading</label>
+                    <input id="screenshots-heading" type="text" class="admin-input">
+                </div>
+                <div id="screenshots-list" class="space-y-6"></div>
+                <button onclick="saveSection('images')" class="mt-6 px-5 py-2.5 bg-brand-500 text-white text-sm font-medium rounded-lg hover:bg-brand-600 transition-colors">Save Screenshots</button>
+            </div>
+        </div>
     </div>
 
     <style>
@@ -220,6 +244,10 @@
         document.getElementById('hero-cta-primary').value = content.hero.ctaPrimary || '';
         document.getElementById('hero-cta-secondary').value = content.hero.ctaSecondary || '';
         document.getElementById('hero-trust-badges').value = (content.hero.trustBadges || []).join(', ');
+        if (content.hero.image) {
+            document.getElementById('hero-image-preview').src = '/' + content.hero.image;
+            document.getElementById('hero-image-path').value = content.hero.image;
+        }
 
         // Features
         document.getElementById('features-heading').value = content.features.heading || '';
@@ -242,6 +270,12 @@
 
         // Trust
         renderTrust();
+
+        // Screenshots
+        if (content.screenshots) {
+            document.getElementById('screenshots-heading').value = content.screenshots.heading || '';
+            renderScreenshots();
+        }
     }
 
     // --- Features ---
@@ -350,6 +384,59 @@
         });
     }
 
+    // --- Screenshots ---
+    function renderScreenshots() {
+        if (!content.screenshots) return;
+        var list = document.getElementById('screenshots-list');
+        list.innerHTML = '';
+        content.screenshots.items.forEach(function(s, i) {
+            list.innerHTML +=
+                '<div class="border border-gray-200 rounded-lg p-4">' +
+                    '<div class="flex items-center justify-between mb-3">' +
+                        '<span class="text-sm font-medium text-gray-900">Screenshot ' + (i + 1) + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-start gap-4 mb-3">' +
+                        '<img id="ss-preview-' + i + '" src="/' + escapeAttr(s.image) + '" alt="Preview" class="w-32 h-20 object-cover rounded-lg border border-gray-200">' +
+                        '<div class="flex-1">' +
+                            '<input type="file" id="ss-file-' + i + '" accept="image/*" onchange="uploadImage(\'ss-file-' + i + '\', \'ss-preview-' + i + '\', \'ss-path-' + i + '\')" class="text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100">' +
+                            '<input type="hidden" id="ss-path-' + i + '" value="' + escapeAttr(s.image) + '">' +
+                            '<p class="text-xs text-gray-400 mt-1">Max 5 MB. JPG, PNG, or WebP.</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="space-y-3">' +
+                        '<div><label class="block text-xs text-gray-500 mb-1">Label</label>' +
+                        '<input class="admin-input" id="ss-label-' + i + '" value="' + escapeAttr(s.label) + '"></div>' +
+                        '<div><label class="block text-xs text-gray-500 mb-1">Alt Text</label>' +
+                        '<input class="admin-input" id="ss-alt-' + i + '" value="' + escapeAttr(s.alt) + '"></div>' +
+                    '</div>' +
+                '</div>';
+        });
+    }
+
+    // --- Upload helper ---
+    function uploadImage(fileInputId, previewId, pathInputId) {
+        var fileInput = document.getElementById(fileInputId);
+        if (!fileInput.files || !fileInput.files[0]) return;
+
+        var formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+
+        fetch('/api/upload', { method: 'POST', body: formData })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    document.getElementById(previewId).src = '/' + data.path;
+                    document.getElementById(pathInputId).value = data.path;
+                    showStatus('Image uploaded!', 'success');
+                } else {
+                    showStatus('Upload failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(function() {
+                showStatus('Upload failed.', 'error');
+            });
+    }
+
     // --- Save ---
     function saveSection(section) {
         // Collect from form into content object
@@ -360,6 +447,8 @@
             content.hero.ctaPrimary = document.getElementById('hero-cta-primary').value;
             content.hero.ctaSecondary = document.getElementById('hero-cta-secondary').value;
             content.hero.trustBadges = document.getElementById('hero-trust-badges').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+            var heroImgPath = document.getElementById('hero-image-path').value;
+            if (heroImgPath) content.hero.image = heroImgPath;
         }
 
         if (section === 'features') {
@@ -412,6 +501,18 @@
                 return {
                     value: document.getElementById('trust-val-' + i).value,
                     label: document.getElementById('trust-lbl-' + i).value
+                };
+            });
+        }
+
+        if (section === 'images') {
+            content.screenshots = content.screenshots || { heading: '', items: [] };
+            content.screenshots.heading = document.getElementById('screenshots-heading').value;
+            content.screenshots.items = content.screenshots.items.map(function(s, i) {
+                return {
+                    image: document.getElementById('ss-path-' + i).value || s.image,
+                    label: document.getElementById('ss-label-' + i).value,
+                    alt: document.getElementById('ss-alt-' + i).value
                 };
             });
         }
