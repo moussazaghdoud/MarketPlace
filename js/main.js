@@ -1,7 +1,9 @@
 // Rainbow Portal — Main JS
 
 var stripeInstance = null;
-var cardElement = null;
+var cardNumberElement = null;
+var cardExpiryElement = null;
+var cardCvcElement = null;
 
 document.addEventListener('DOMContentLoaded', function () {
     loadContent();
@@ -19,27 +21,34 @@ function initStripe() {
             }
             stripeInstance = Stripe(data.publishableKey);
             var elements = stripeInstance.elements();
-            cardElement = elements.create('card', {
-                style: {
-                    base: {
-                        fontSize: '14px',
-                        color: '#1f2937',
-                        '::placeholder': { color: '#9ca3af' }
-                    }
+            var elementStyle = {
+                base: {
+                    fontSize: '14px',
+                    color: '#1f2937',
+                    '::placeholder': { color: '#9ca3af' }
                 }
-            });
-            cardElement.mount('#card-element');
+            };
 
-            // Show real-time validation errors
-            cardElement.on('change', function (event) {
-                var errorEl = document.getElementById('card-errors');
-                if (event.error) {
-                    errorEl.textContent = event.error.message;
-                    errorEl.classList.remove('hidden');
-                } else {
-                    errorEl.textContent = '';
-                    errorEl.classList.add('hidden');
-                }
+            cardNumberElement = elements.create('cardNumber', { style: elementStyle });
+            cardExpiryElement = elements.create('cardExpiry', { style: elementStyle });
+            cardCvcElement = elements.create('cardCvc', { style: elementStyle });
+
+            cardNumberElement.mount('#card-number-element');
+            cardExpiryElement.mount('#card-expiry-element');
+            cardCvcElement.mount('#card-cvc-element');
+
+            // Show real-time validation errors from any element
+            [cardNumberElement, cardExpiryElement, cardCvcElement].forEach(function (el) {
+                el.on('change', function (event) {
+                    var errorEl = document.getElementById('card-errors');
+                    if (event.error) {
+                        errorEl.textContent = event.error.message;
+                        errorEl.classList.remove('hidden');
+                    } else {
+                        errorEl.textContent = '';
+                        errorEl.classList.add('hidden');
+                    }
+                });
             });
         })
         .catch(function (err) {
@@ -340,7 +349,7 @@ function handlePayment() {
         showCardError('Please enter a valid email address.');
         return;
     }
-    if (!stripeInstance || !cardElement) {
+    if (!stripeInstance || !cardNumberElement) {
         showCardError('Payment system not ready. Please refresh and try again.');
         return;
     }
@@ -370,7 +379,7 @@ function handlePayment() {
         // 2. Confirm card payment with Stripe
         return stripeInstance.confirmCardPayment(data.clientSecret, {
             payment_method: {
-                card: cardElement,
+                card: cardNumberElement,
                 billing_details: { email: email }
             }
         });
@@ -430,17 +439,31 @@ function closeCheckoutAndReset() {
             '<label for="checkout-email" class="block text-xs font-medium text-gray-600 mb-1">Email</label>' +
             '<input type="email" id="checkout-email" placeholder="you@company.com" class="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">' +
         '</div>' +
+        '<div class="mb-3">' +
+            '<label class="block text-xs font-medium text-gray-600 mb-1">Card number</label>' +
+            '<div id="card-number-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>' +
+        '</div>' +
+        '<div class="grid grid-cols-2 gap-3 mb-3">' +
+            '<div>' +
+                '<label class="block text-xs font-medium text-gray-600 mb-1">Expiry</label>' +
+                '<div id="card-expiry-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>' +
+            '</div>' +
+            '<div>' +
+                '<label class="block text-xs font-medium text-gray-600 mb-1">CVC</label>' +
+                '<div id="card-cvc-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>' +
+            '</div>' +
+        '</div>' +
         '<div class="mb-5">' +
-            '<label class="block text-xs font-medium text-gray-600 mb-1">Card details</label>' +
-            '<div id="card-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-400" style="min-height:40px"></div>' +
-            '<p id="card-errors" class="text-red-500 text-xs mt-1 hidden"></p>' +
+            '<p id="card-errors" class="text-red-500 text-xs hidden"></p>' +
         '</div>' +
         '<button id="checkout-submit" onclick="handlePayment()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors">Subscribe & Pay</button>' +
         '<p class="text-[11px] text-gray-400 text-center mt-3">Secured by Stripe. Card data never touches our servers.</p>';
 
-    // Re-mount Stripe card element
-    if (cardElement) {
-        cardElement.mount('#card-element');
+    // Re-mount Stripe card elements
+    if (cardNumberElement) {
+        cardNumberElement.mount('#card-number-element');
+        cardExpiryElement.mount('#card-expiry-element');
+        cardCvcElement.mount('#card-cvc-element');
     }
 }
 
