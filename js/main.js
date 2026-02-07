@@ -1,8 +1,51 @@
 // Rainbow Portal — Main JS
 
+var stripeInstance = null;
+var cardElement = null;
+
 document.addEventListener('DOMContentLoaded', function () {
     loadContent();
+    initStripe();
 });
+
+// Initialize Stripe Elements
+function initStripe() {
+    fetch('/api/stripe-key')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.publishableKey) {
+                console.warn('Stripe publishable key not configured.');
+                return;
+            }
+            stripeInstance = Stripe(data.publishableKey);
+            var elements = stripeInstance.elements();
+            cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontSize: '14px',
+                        color: '#1f2937',
+                        '::placeholder': { color: '#9ca3af' }
+                    }
+                }
+            });
+            cardElement.mount('#card-element');
+
+            // Show real-time validation errors
+            cardElement.on('change', function (event) {
+                var errorEl = document.getElementById('card-errors');
+                if (event.error) {
+                    errorEl.textContent = event.error.message;
+                    errorEl.classList.remove('hidden');
+                } else {
+                    errorEl.textContent = '';
+                    errorEl.classList.add('hidden');
+                }
+            });
+        })
+        .catch(function (err) {
+            console.warn('Could not initialize Stripe:', err);
+        });
+}
 
 // Load content from API and render
 function loadContent() {
@@ -290,29 +333,115 @@ function closeCheckout() {
 
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCheckout(); });
 
-// Payment handler (demo mode)
+// Payment handler — real Stripe integration
 function handlePayment() {
     var email = document.getElementById('checkout-email').value.trim();
     if (!email || !email.includes('@')) {
         showCardError('Please enter a valid email address.');
         return;
     }
-    var count = getLicenseCount();
-    var btn = document.getElementById('checkout-submit');
+    if (!stripeInstance || !cardElement) {
+        showCardError('Payment system not ready. Please refresh and try again.');
+        return;
+    }
 
+    var count = getLicenseCount();
+    var planKey = selectedPlan ? Object.keys(window.PLANS).find(function (k) { return window.PLANS[k] === selectedPlan; }) : null;
+    if (!planKey) {
+        showCardError('No plan selected.');
+        return;
+    }
+
+    var btn = document.getElementById('checkout-submit');
     btn.disabled = true;
     btn.textContent = 'Processing\u2026';
 
-    setTimeout(function () {
-        btn.textContent = 'Confirmed!';
-        btn.classList.remove('bg-brand-500', 'hover:bg-brand-600');
-        btn.classList.add('bg-green-500');
-        setTimeout(function () {
-            alert('Demo: Subscription confirmed!\n\nPlan: ' + selectedPlan.name + '\nLicenses: ' + count + '\nEmail: ' + email + '\nTotal: \u20AC' + (selectedPlan.pricePerUser * count).toFixed(2) + '/mo\n\nIn production this redirects to Stripe Checkout.');
-            resetBtn();
-            closeCheckout();
-        }, 1200);
-    }, 1500);
+    // 1. Create subscription on the server
+    fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, planKey: planKey, licenseCount: count })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        // 2. Confirm card payment with Stripe
+        return stripeInstance.confirmCardPayment(data.clientSecret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: { email: email }
+            }
+        });
+    })
+    .then(function (result) {
+        if (result.error) {
+            throw new Error(result.error.message);
+        }
+        // 3. Payment succeeded — show success view
+        showPaymentSuccess(email, count);
+    })
+    .catch(function (err) {
+        showCardError(err.message || 'Payment failed. Please try again.');
+        resetBtn();
+    });
+}
+
+// Show success confirmation inside the modal
+function showPaymentSuccess(email, licenseCount) {
+    var total = (selectedPlan.pricePerUser * licenseCount).toFixed(2);
+    var modalContent = document.querySelector('#checkout-modal .bg-white');
+    modalContent.innerHTML =
+        '<div class="text-center py-4">' +
+            '<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">' +
+                '<svg class="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' +
+            '</div>' +
+            '<h3 class="text-xl font-bold text-gray-900 mb-1">Subscription active!</h3>' +
+            '<p class="text-sm text-gray-500 mb-6">Your payment was processed successfully.</p>' +
+            '<div class="bg-gray-50 rounded-lg p-4 mb-6 space-y-2 text-sm text-left">' +
+                '<div class="flex justify-between"><span class="text-gray-400">Plan</span><span class="font-medium text-gray-900">' + escapeHtml(selectedPlan.name) + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-400">Licenses</span><span class="font-medium text-gray-900">' + licenseCount + ' user' + (licenseCount > 1 ? 's' : '') + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-400">Email</span><span class="font-medium text-gray-900">' + escapeHtml(email) + '</span></div>' +
+                '<div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900">Monthly total</span><span class="font-bold text-green-600">\u20AC' + total + '/mo</span></div>' +
+            '</div>' +
+            '<button onclick="closeCheckoutAndReset()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors">Close</button>' +
+        '</div>';
+}
+
+// Close and rebuild the modal HTML for next use
+function closeCheckoutAndReset() {
+    closeCheckout();
+    // Restore original modal content so it can be reused
+    var modalContent = document.querySelector('#checkout-modal .bg-white');
+    modalContent.innerHTML =
+        '<button onclick="closeCheckout()" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" aria-label="Close">' +
+            '<svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
+        '</button>' +
+        '<h3 class="text-lg font-bold text-gray-900 mb-1">Subscribe</h3>' +
+        '<p class="text-xs text-gray-500 mb-5" id="checkout-summary"></p>' +
+        '<div class="bg-gray-50 rounded-lg p-4 mb-5 space-y-2 text-sm">' +
+            '<div class="flex justify-between"><span class="text-gray-400">Plan</span><span class="font-medium text-gray-900" id="checkout-plan-name"></span></div>' +
+            '<div class="flex justify-between"><span class="text-gray-400">Licenses</span><span class="font-medium text-gray-900" id="checkout-licenses"></span></div>' +
+            '<div class="flex justify-between"><span class="text-gray-400">Per user</span><span class="font-medium text-gray-900" id="checkout-unit-price"></span></div>' +
+            '<div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900">Monthly total</span><span class="font-bold text-brand-600" id="checkout-total"></span></div>' +
+        '</div>' +
+        '<div class="mb-3">' +
+            '<label for="checkout-email" class="block text-xs font-medium text-gray-600 mb-1">Email</label>' +
+            '<input type="email" id="checkout-email" placeholder="you@company.com" class="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">' +
+        '</div>' +
+        '<div class="mb-5">' +
+            '<label class="block text-xs font-medium text-gray-600 mb-1">Card details</label>' +
+            '<div id="card-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-400" style="min-height:40px"></div>' +
+            '<p id="card-errors" class="text-red-500 text-xs mt-1 hidden"></p>' +
+        '</div>' +
+        '<button id="checkout-submit" onclick="handlePayment()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors">Subscribe & Pay</button>' +
+        '<p class="text-[11px] text-gray-400 text-center mt-3">Secured by Stripe. Card data never touches our servers.</p>';
+
+    // Re-mount Stripe card element
+    if (cardElement) {
+        cardElement.mount('#card-element');
+    }
 }
 
 function resetBtn() {
