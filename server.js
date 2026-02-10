@@ -24,7 +24,10 @@ const PLAN_PRICES = {
     'enterprise': process.env.STRIPE_PRICE_ENTERPRISE || 'price_REPLACE_ME_ENTERPRISE'
 };
 
-// --- Rainbow API proxy (must be mounted BEFORE express.json()) ---
+// --- Rainbow API proxy ---
+// Parse JSON body for Rainbow routes so we can read the password for x-rainbow-app-auth
+app.use('/api/rainbow', express.json());
+
 app.use('/api/rainbow', createProxyMiddleware({
     target: RAINBOW_DOMAIN,
     changeOrigin: true,
@@ -42,26 +45,40 @@ app.use('/api/rainbow', createProxyMiddleware({
             proxyReq.setHeader('x-rainbow-client', 'web_win');
             proxyReq.setHeader('x-rainbow-client-version', RAINBOW_CLIENT_VERSION);
 
-            // For login requests, compute x-rainbow-app-auth from password
+            // Re-write body since express.json() consumed the stream
+            if (req.body && Object.keys(req.body).length > 0) {
+                var bodyData = JSON.stringify(req.body);
+                proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+                proxyReq.write(bodyData);
+            }
+
+            // Compute x-rainbow-app-auth from password
+            var password = '';
+
             if (req.url.match(/\/authentication\/.*\/login/)) {
+                // Login: password is in the Basic auth header
                 var authHeader = req.headers['authorization'] || '';
                 if (authHeader.startsWith('Basic ')) {
                     try {
                         var decoded = Buffer.from(authHeader.slice(6), 'base64').toString('utf8');
                         var colonIdx = decoded.indexOf(':');
-                        if (colonIdx > -1) {
-                            var password = decoded.substring(colonIdx + 1);
-                            var hash = crypto.createHash('sha256')
-                                .update(RAINBOW_APP_SECRET + password)
-                                .digest('hex')
-                                .toUpperCase();
-                            var appAuth = Buffer.from(RAINBOW_APP_ID + ':' + hash).toString('base64');
-                            proxyReq.setHeader('x-rainbow-app-auth', 'Basic ' + appAuth);
-                        }
+                        if (colonIdx > -1) password = decoded.substring(colonIdx + 1);
                     } catch (e) {
                         console.error('Rainbow auth header error:', e.message);
                     }
                 }
+            } else if (req.url.match(/self-register/) && req.body && req.body.password) {
+                // Self-register: password is in the JSON body
+                password = req.body.password;
+            }
+
+            if (password && RAINBOW_APP_ID && RAINBOW_APP_SECRET) {
+                var hash = crypto.createHash('sha256')
+                    .update(RAINBOW_APP_SECRET + password)
+                    .digest('hex')
+                    .toUpperCase();
+                var appAuth = Buffer.from(RAINBOW_APP_ID + ':' + hash).toString('base64');
+                proxyReq.setHeader('x-rainbow-app-auth', 'Basic ' + appAuth);
             }
         }
     }
