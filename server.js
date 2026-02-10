@@ -191,4 +191,6 @@ app.post('/api/create-subscription', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Rainbow Portal running at http://localhost:${PORT}`);
     console.log(`Admin panel: http://localhost:${PORT}/admin`);
+    console.log(`Rainbow APP_ID: ${RAINBOW_APP_ID ? RAINBOW_APP_ID.slice(0, 6) + '...' : 'NOT SET'}`);
+    console.log(`Rainbow APP_SECRET: ${RAINBOW_APP_SECRET ? 'configured' : 'NOT SET'}`);
 });
