@@ -212,7 +212,7 @@
     function renderStep3() {
         var countryOptions = '<option value="">Select country</option>';
         state.countries.forEach(function (c) {
-            countryOptions += '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>';
+            countryOptions += '<option value="' + esc(c.isoAlpha3Code) + '">' + esc(c.fullname) + '</option>';
         });
 
         var card = $('ob-card');
