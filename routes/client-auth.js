@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const { getDb } = require('../db/connection');
 const { generateToken, clientAuth } = require('../middleware/auth');
+const salesforce = require('../services/salesforce');
 
 const router = express.Router();
 
@@ -30,6 +31,16 @@ router.post('/register', (req, res) => {
     // In production, send verification email here
     // For now, auto-verify
     db.prepare('UPDATE clients SET emailVerified = 1, status = ? WHERE id = ?').run('active', id);
+
+    // Fire-and-forget: create Salesforce Lead
+    salesforce.createLead({ firstName, lastName, email })
+        .then(result => {
+            if (result.leadId) {
+                db.prepare('UPDATE clients SET salesforceLeadId = ? WHERE id = ?')
+                    .run(result.leadId, id);
+            }
+        })
+        .catch(err => console.error('[Salesforce] Lead creation failed:', err.message));
 
     const token = generateToken({
         id, email, firstName, lastName, type: 'client'

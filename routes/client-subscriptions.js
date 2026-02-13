@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { getDb } = require('../db/connection');
 const { clientAuth } = require('../middleware/auth');
 const stripeService = require('../services/stripe-service');
-const salesforce = require('../services/salesforce-stub');
+const salesforce = require('../services/salesforce');
 const zuora = require('../services/zuora-stub');
 
 const router = express.Router();
