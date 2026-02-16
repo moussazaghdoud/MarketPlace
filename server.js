@@ -191,6 +191,20 @@ function sendPage(req, res, filePath) {
     }
 }
 
+// Debug: check if server-side i18n is working
+app.get('/api/i18n-debug', (req, res) => {
+    const lang = req.cookies && req.cookies.lang;
+    res.json({
+        serverSideI18n: true,
+        cookieLang: lang || '(no cookie)',
+        wouldTranslate: !!(lang && lang !== 'en' && SUPPORTED_LANGS.indexOf(lang) !== -1),
+        i18nFilesExist: SUPPORTED_LANGS.map(l => {
+            try { return { lang: l, exists: fs.existsSync(path.join(__dirname, 'i18n', l + '.json')) }; }
+            catch (e) { return { lang: l, exists: false }; }
+        })
+    });
+});
+
 // API to clear translation cache (called when admin updates content)
 app.post('/api/admin/clear-i18n-cache', adminAuth, (req, res) => {
     Object.keys(translatedPageCache).forEach(k => delete translatedPageCache[k]);
