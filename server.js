@@ -13,7 +13,7 @@ const { v4: uuidv4 } = require('uuid');
 // on first deploy, then use /data as the source of truth for all mutable data.
 let VOLUME_PATH = '';
 try {
-    VOLUME_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH || '';
+    VOLUME_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATABASE_PATH || '';
     if (!VOLUME_PATH && fs.existsSync('/data') && fs.statSync('/data').isDirectory()) {
         VOLUME_PATH = '/data';
     }
