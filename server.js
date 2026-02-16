@@ -162,6 +162,18 @@ app.use('/api/blog', require('./routes/public-blog'));
 app.use('/api/reviews', require('./routes/public-reviews'));
 app.use('/api/contact', require('./routes/public-contact'));
 
+// Public product list
+app.get('/api/products', (req, res) => {
+    const db = getDb();
+    const products = db.prepare('SELECT * FROM products WHERE isActive = 1 ORDER BY createdAt ASC').all();
+    res.json(products.map(p => ({
+        ...p,
+        plans: JSON.parse(p.plans || '{}'),
+        benefits: JSON.parse(p.benefits || '[]'),
+        gallery: JSON.parse(p.gallery || '[]')
+    })));
+});
+
 // Public product detail
 app.get('/api/products/:slug', (req, res) => {
     const db = getDb();

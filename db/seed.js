@@ -111,6 +111,56 @@ function seed() {
         console.log('Default Rainbow product seeded');
     }
 
+    // Seed Rainbow Webinar product
+    const existingWebinar = db.prepare('SELECT id FROM products WHERE slug = ?').get('webinar');
+    if (!existingWebinar) {
+        db.prepare(`
+            INSERT INTO products (id, name, slug, shortDescription, fullDescription, benefits, gallery, plans)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            uuidv4(),
+            'Rainbow Webinar',
+            'webinar',
+            'Professional webinar platform for hosting large-scale online events with up to 10,000 participants.',
+            'Rainbow Webinar by Alcatel-Lucent Enterprise is a professional webinar solution for hosting large-scale online events, product demos, training sessions, and town halls with interactive Q&A, polls, and analytics.',
+            JSON.stringify([
+                'Up to 10,000 participants',
+                'Interactive Q&A and polls',
+                'HD video streaming',
+                'Recording and replay',
+                'Advanced analytics and reporting'
+            ]),
+            JSON.stringify([]),
+            JSON.stringify({})
+        );
+        console.log('Rainbow Webinar product seeded');
+    }
+
+    // Seed Rainbow Smart Hotel product
+    const existingHotel = db.prepare('SELECT id FROM products WHERE slug = ?').get('smart-hotel');
+    if (!existingHotel) {
+        db.prepare(`
+            INSERT INTO products (id, name, slug, shortDescription, fullDescription, benefits, gallery, plans)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            uuidv4(),
+            'Rainbow Smart Hotel',
+            'smart-hotel',
+            'AI-powered guest experience platform with voice concierge and seamless hotel operations.',
+            'Rainbow Smart Hotel by Alcatel-Lucent Enterprise is an AI-powered hospitality solution featuring voice concierge, room service management, real-time staff communication, and seamless integration with hotel property management systems.',
+            JSON.stringify([
+                'AI voice concierge',
+                'Room service management',
+                'Real-time staff communication',
+                'Guest experience analytics',
+                'PMS integration'
+            ]),
+            JSON.stringify([]),
+            JSON.stringify({})
+        );
+        console.log('Rainbow Smart Hotel product seeded');
+    }
+
     // Seed default blog categories
     const existingCat = db.prepare('SELECT id FROM blog_categories LIMIT 1').get();
     if (!existingCat) {
