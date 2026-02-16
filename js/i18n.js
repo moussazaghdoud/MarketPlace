@@ -165,16 +165,40 @@
     function init() {
         var lang = detectLang();
         currentLang = lang;
-        // Always preload English as fallback
-        var promises = [loadTranslations('en')];
-        if (lang !== 'en') promises.push(loadTranslations(lang));
-        Promise.all(promises).then(function () {
+
+        // Try to load translations synchronously from localStorage (instant)
+        try {
+            var enRaw = localStorage.getItem('i18n_en');
+            if (enRaw) cache['en'] = JSON.parse(enRaw);
+            if (lang !== 'en') {
+                var langRaw = localStorage.getItem('i18n_' + lang);
+                if (langRaw) cache[lang] = JSON.parse(langRaw);
+            }
+        } catch (e) { /* corrupted, will fetch */ }
+
+        if (cache[lang] || cache['en']) {
+            // Synchronous path — no network wait, no promise delay
             currentTranslations = cache[lang] || cache['en'];
             applyTranslations();
             initLangSwitcher();
             revealContent();
             window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
-        });
+            // Background refresh so cache stays fresh
+            var base = window.location.origin;
+            fetch(base + '/i18n/en.json').then(function (r) { return r.json(); }).then(function (d) { cache['en'] = d; try { localStorage.setItem('i18n_en', JSON.stringify(d)); } catch (e) {} });
+            if (lang !== 'en') fetch(base + '/i18n/' + lang + '.json').then(function (r) { return r.json(); }).then(function (d) { cache[lang] = d; try { localStorage.setItem('i18n_' + lang, JSON.stringify(d)); } catch (e) {} });
+        } else {
+            // First visit — must fetch from server
+            var promises = [loadTranslations('en')];
+            if (lang !== 'en') promises.push(loadTranslations(lang));
+            Promise.all(promises).then(function () {
+                currentTranslations = cache[lang] || cache['en'];
+                applyTranslations();
+                initLangSwitcher();
+                revealContent();
+                window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
+            });
+        }
     }
 
     if (document.readyState === 'loading') {
