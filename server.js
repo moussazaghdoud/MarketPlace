@@ -11,47 +11,60 @@ const { v4: uuidv4 } = require('uuid');
 // ===================== PERSISTENT VOLUME =====================
 // On Railway, /data is a persistent volume. We copy default files there
 // on first deploy, then use /data as the source of truth for all mutable data.
-const VOLUME_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH || (fs.existsSync('/data') ? '/data' : '');
+let VOLUME_PATH = '';
+try {
+    VOLUME_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH || '';
+    if (!VOLUME_PATH && fs.existsSync('/data') && fs.statSync('/data').isDirectory()) {
+        VOLUME_PATH = '/data';
+    }
+} catch (e) {
+    console.log('[Volume] Detection error:', e.message);
+}
+
 const DATA_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'db') : path.join(__dirname, 'data');
 const I18N_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'i18n') : path.join(__dirname, 'i18n');
 const IMAGES_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'images') : path.join(__dirname, 'images');
 
-if (VOLUME_PATH) {
-    console.log('[Volume] Persistent volume detected at', VOLUME_PATH);
-    // Ensure directories exist
-    [DATA_DIR, I18N_DIR, IMAGES_DIR].forEach(dir => {
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    });
+console.log('[Volume] VOLUME_PATH=' + JSON.stringify(VOLUME_PATH) + ' DATA_DIR=' + DATA_DIR + ' I18N_DIR=' + I18N_DIR);
 
-    // Copy default data files if not yet present on volume
-    const srcData = path.join(__dirname, 'data');
-    if (fs.existsSync(srcData)) {
-        fs.readdirSync(srcData).forEach(f => {
-            if (f.endsWith('.json')) {
-                const dest = path.join(DATA_DIR, f);
-                if (!fs.existsSync(dest)) {
-                    fs.copyFileSync(path.join(srcData, f), dest);
-                    console.log('[Volume] Copied default', f, 'to volume');
-                }
-            }
+try {
+    if (VOLUME_PATH) {
+        // Ensure directories exist
+        [DATA_DIR, I18N_DIR, IMAGES_DIR].forEach(dir => {
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         });
-    }
 
-    // Copy default i18n files if not yet present on volume
-    const srcI18n = path.join(__dirname, 'i18n');
-    if (fs.existsSync(srcI18n)) {
-        fs.readdirSync(srcI18n).forEach(f => {
-            if (f.endsWith('.json')) {
-                const dest = path.join(I18N_DIR, f);
-                if (!fs.existsSync(dest)) {
-                    fs.copyFileSync(path.join(srcI18n, f), dest);
-                    console.log('[Volume] Copied default', f, 'to volume');
+        // Copy default data files if not yet present on volume
+        const srcData = path.join(__dirname, 'data');
+        if (fs.existsSync(srcData)) {
+            fs.readdirSync(srcData).forEach(f => {
+                if (f.endsWith('.json')) {
+                    const dest = path.join(DATA_DIR, f);
+                    if (!fs.existsSync(dest)) {
+                        fs.copyFileSync(path.join(srcData, f), dest);
+                        console.log('[Volume] Copied', f);
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        // Copy default i18n files if not yet present on volume
+        const srcI18n = path.join(__dirname, 'i18n');
+        if (fs.existsSync(srcI18n)) {
+            fs.readdirSync(srcI18n).forEach(f => {
+                if (f.endsWith('.json')) {
+                    const dest = path.join(I18N_DIR, f);
+                    if (!fs.existsSync(dest)) {
+                        fs.copyFileSync(path.join(srcI18n, f), dest);
+                        console.log('[Volume] Copied', f);
+                    }
+                }
+            });
+        }
+        console.log('[Volume] Bootstrap complete');
     }
-} else {
-    console.log('[Volume] No persistent volume — using local directories');
+} catch (e) {
+    console.error('[Volume] Bootstrap error:', e.message);
 }
 
 // Export paths for other modules
