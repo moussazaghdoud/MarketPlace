@@ -8,61 +8,12 @@ var cardCvcElement = null;
 document.addEventListener('DOMContentLoaded', function () {
     loadContent();
     initStripe();
-    initLangSwitcher();
 });
 
 // Listen for language changes → reload content
 window.addEventListener('langchange', function () {
     loadContent();
 });
-
-// Build language switcher dropdowns (desktop + mobile)
-function initLangSwitcher() {
-    if (!window.i18n) return;
-    var langs = { en: 'English', fr: 'Fran\u00e7ais', es: 'Espa\u00f1ol', it: 'Italiano', de: 'Deutsch' };
-    var currentLang = i18n.getLang();
-
-    // Desktop dropdown
-    var dropdown = document.getElementById('lang-dropdown');
-    if (dropdown) {
-        dropdown.innerHTML = '';
-        Object.keys(langs).forEach(function (code) {
-            var btn = document.createElement('button');
-            btn.textContent = langs[code];
-            btn.className = code === currentLang ? 'active' : '';
-            btn.onclick = function (e) {
-                e.stopPropagation();
-                i18n.setLang(code);
-                document.getElementById('lang-switcher').classList.remove('open');
-                initLangSwitcher();
-            };
-            dropdown.appendChild(btn);
-        });
-    }
-
-    // Mobile language buttons
-    var mobileSwitcher = document.getElementById('mobile-lang-switcher');
-    if (mobileSwitcher) {
-        mobileSwitcher.innerHTML = '';
-        Object.keys(langs).forEach(function (code) {
-            var btn = document.createElement('button');
-            btn.textContent = code.toUpperCase();
-            btn.className = code === currentLang
-                ? 'px-3 py-1.5 rounded-full text-xs font-medium bg-brand-500 text-white'
-                : 'px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600';
-            btn.onclick = function () { i18n.setLang(code); initLangSwitcher(); };
-            mobileSwitcher.appendChild(btn);
-        });
-    }
-
-    // Close desktop dropdown on outside click
-    document.addEventListener('click', function (e) {
-        var switcher = document.getElementById('lang-switcher');
-        if (switcher && !switcher.contains(e.target)) {
-            switcher.classList.remove('open');
-        }
-    });
-}
 
 // Initialize Stripe Elements
 function initStripe() {

@@ -49,6 +49,54 @@
         return fallback !== undefined ? fallback : key;
     }
 
+    // Build language switcher dropdowns (desktop + mobile)
+    function initLangSwitcher() {
+        var langs = { en: 'English', fr: 'Fran\u00e7ais', es: 'Espa\u00f1ol', it: 'Italiano', de: 'Deutsch' };
+
+        // Desktop dropdown
+        var dropdown = document.getElementById('lang-dropdown');
+        if (dropdown) {
+            dropdown.innerHTML = '';
+            Object.keys(langs).forEach(function (code) {
+                var btn = document.createElement('button');
+                btn.textContent = langs[code];
+                btn.className = code === currentLang ? 'active' : '';
+                btn.onclick = function (e) {
+                    e.stopPropagation();
+                    setLang(code);
+                    var sw = document.getElementById('lang-switcher');
+                    if (sw) sw.classList.remove('open');
+                };
+                dropdown.appendChild(btn);
+            });
+        }
+
+        // Mobile language buttons
+        var mobileSwitcher = document.getElementById('mobile-lang-switcher');
+        if (mobileSwitcher) {
+            mobileSwitcher.innerHTML = '';
+            Object.keys(langs).forEach(function (code) {
+                var btn = document.createElement('button');
+                btn.textContent = code.toUpperCase();
+                btn.className = code === currentLang
+                    ? 'px-3 py-1.5 rounded-full text-xs font-medium bg-brand-500 text-white'
+                    : 'px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600';
+                btn.onclick = function () { setLang(code); };
+                mobileSwitcher.appendChild(btn);
+            });
+        }
+
+        // Update current lang display
+        var langCurrent = document.getElementById('lang-current');
+        if (langCurrent) langCurrent.textContent = currentLang.toUpperCase();
+    }
+
+    // Close desktop dropdown on outside click
+    document.addEventListener('click', function (e) {
+        var sw = document.getElementById('lang-switcher');
+        if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+    });
+
     // Apply translations to all data-i18n elements on the page
     function applyTranslations() {
         // data-i18n → textContent
@@ -84,6 +132,7 @@
         loadTranslations(lang).then(function (data) {
             currentTranslations = data;
             applyTranslations();
+            initLangSwitcher();
             // Dispatch event so page scripts can re-render JS-built content
             window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
         });
@@ -99,6 +148,7 @@
         Promise.all(promises).then(function () {
             currentTranslations = cache[lang] || cache['en'];
             applyTranslations();
+            initLangSwitcher();
             window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
         });
     }
