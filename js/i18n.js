@@ -8,16 +8,6 @@
     var SUPPORTED = ['en', 'fr', 'es', 'it', 'de'];
     var DEFAULT_LANG = 'en';
 
-    // Hide translatable elements immediately if a non-English language is stored,
-    // to prevent flash of English text (FOUC) before translations load.
-    var storedLang = localStorage.getItem('lang');
-    if (storedLang && storedLang !== 'en' && SUPPORTED.indexOf(storedLang) !== -1) {
-        var hideStyle = document.createElement('style');
-        hideStyle.id = 'i18n-hide';
-        hideStyle.textContent = '[data-i18n],[data-i18n-html],[data-i18n-placeholder]{visibility:hidden}';
-        (document.head || document.documentElement).appendChild(hideStyle);
-    }
-
     // Detect language: localStorage > browser > default
     function detectLang() {
         var stored = localStorage.getItem('lang');
