@@ -109,20 +109,109 @@ const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } 
 // Static files
 app.use(express.static(__dirname, { index: false }));
 
+// ===================== SERVER-SIDE I18N =====================
+
+const SUPPORTED_LANGS = ['en', 'fr', 'es', 'it', 'de'];
+const i18nFileCache = {};
+const translatedPageCache = {};
+
+function loadI18nFile(lang) {
+    if (i18nFileCache[lang]) return i18nFileCache[lang];
+    try {
+        const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'i18n', lang + '.json'), 'utf8'));
+        i18nFileCache[lang] = data;
+        return data;
+    } catch (e) { return null; }
+}
+
+function i18nGetKey(obj, key) {
+    const parts = key.split('.');
+    let val = obj;
+    for (const part of parts) {
+        if (val == null) return undefined;
+        val = val[part];
+    }
+    return val;
+}
+
+function translateHTML(html, lang) {
+    const tr = loadI18nFile(lang);
+    const en = loadI18nFile('en');
+    if (!tr) return html;
+
+    function lookup(key) {
+        let val = i18nGetKey(tr, key);
+        if (val !== undefined) return val;
+        if (en) { val = i18nGetKey(en, key); if (val !== undefined) return val; }
+        return null;
+    }
+
+    // data-i18n="key">text</
+    html = html.replace(/(data-i18n="([^"]+)"[^>]*>)([^<]*?)(<\/)/g, (m, before, key, oldText, after) => {
+        const val = lookup(key);
+        return val !== null ? before + val + after : m;
+    });
+    // data-i18n-html="key">html content</
+    html = html.replace(/(data-i18n-html="([^"]+)"[^>]*>)([\s\S]*?)(<\/)/g, (m, before, key, oldContent, after) => {
+        const val = lookup(key);
+        return val !== null ? before + val + after : m;
+    });
+    // data-i18n-placeholder="key" ... placeholder="old"
+    html = html.replace(/(data-i18n-placeholder="([^"]+)"[^>]*?)(placeholder=")([^"]*?)(")/g, (m, before, key, pAttr, oldVal, pEnd) => {
+        const val = lookup(key);
+        return val !== null ? before + pAttr + val + pEnd : m;
+    });
+    // placeholder="old" ... data-i18n-placeholder="key" (reverse order)
+    html = html.replace(/(placeholder=")([^"]*?)("[^>]*?data-i18n-placeholder="([^"]+)")/g, (m, pAttr, oldVal, after, key) => {
+        const val = lookup(key);
+        return val !== null ? pAttr + val + after : m;
+    });
+    // Update <html lang="en"> to <html lang="xx">
+    html = html.replace(/<html\s+lang="[^"]*"/, '<html lang="' + lang + '"');
+
+    return html;
+}
+
+function sendPage(req, res, filePath) {
+    const lang = req.cookies && req.cookies.lang;
+    if (!lang || lang === 'en' || SUPPORTED_LANGS.indexOf(lang) === -1) {
+        return res.sendFile(filePath);
+    }
+    const cacheKey = filePath + ':' + lang;
+    if (translatedPageCache[cacheKey]) {
+        return res.type('html').send(translatedPageCache[cacheKey]);
+    }
+    try {
+        const html = fs.readFileSync(filePath, 'utf8');
+        const translated = translateHTML(html, lang);
+        translatedPageCache[cacheKey] = translated;
+        res.type('html').send(translated);
+    } catch (e) {
+        res.sendFile(filePath);
+    }
+}
+
+// API to clear translation cache (called when admin updates content)
+app.post('/api/admin/clear-i18n-cache', adminAuth, (req, res) => {
+    Object.keys(translatedPageCache).forEach(k => delete translatedPageCache[k]);
+    Object.keys(i18nFileCache).forEach(k => delete i18nFileCache[k]);
+    res.json({ success: true });
+});
+
 // ===================== PAGE ROUTES =====================
 
-// Public pages
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// Public pages (server-side translated)
+app.get('/', (req, res) => sendPage(req, res, path.join(__dirname, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'admin.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'client-login.html')));
-app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'client-portal.html')));
-app.get('/blog', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'blog.html')));
-app.get('/blog/:slug', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'blog-article.html')));
-app.get('/reviews', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'reviews.html')));
-app.get('/support', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'support.html')));
-app.get('/tutorials', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'tutorials.html')));
-app.get('/products', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'products.html')));
-app.get('/product/:slug', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'product.html')));
+app.get('/login', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'client-login.html')));
+app.get('/portal', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'client-portal.html')));
+app.get('/blog', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'blog.html')));
+app.get('/blog/:slug', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'blog-article.html')));
+app.get('/reviews', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'reviews.html')));
+app.get('/support', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'support.html')));
+app.get('/tutorials', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'tutorials.html')));
+app.get('/products', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'products.html')));
+app.get('/product/:slug', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'product.html')));
 
 // ===================== API ROUTES =====================
 

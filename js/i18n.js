@@ -126,11 +126,17 @@
         if (switcher) switcher.textContent = currentLang.toUpperCase();
     }
 
+    // Set cookie so server can pre-translate HTML on next navigation
+    function setCookie(lang) {
+        document.cookie = 'lang=' + lang + ';path=/;max-age=31536000;SameSite=Lax';
+    }
+
     // Set language and re-apply
     function setLang(lang) {
         if (SUPPORTED.indexOf(lang) === -1) lang = DEFAULT_LANG;
         currentLang = lang;
         localStorage.setItem('lang', lang);
+        setCookie(lang);
         loadTranslations(lang).then(function (data) {
             currentTranslations = data;
             applyTranslations();
@@ -143,6 +149,7 @@
     function init() {
         var lang = detectLang();
         currentLang = lang;
+        setCookie(lang);
 
         // Load from localStorage synchronously (instant, no network)
         try {
