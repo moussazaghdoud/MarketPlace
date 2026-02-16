@@ -6,7 +6,7 @@ const { adminAuth } = require('../middleware/auth');
 const router = express.Router();
 
 const SUPPORTED_LANGS = ['en', 'fr', 'es', 'it', 'de'];
-const I18N_DIR = path.join(__dirname, '..', 'i18n');
+const I18N_DIR = process.env._I18N_DIR || path.join(__dirname, '..', 'i18n');
 
 // GET /api/admin/i18n — list available languages
 router.get('/', adminAuth, (req, res) => {

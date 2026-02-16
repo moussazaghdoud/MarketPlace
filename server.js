@@ -8,6 +8,56 @@ const cookieParser = require('cookie-parser');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { v4: uuidv4 } = require('uuid');
 
+// ===================== PERSISTENT VOLUME =====================
+// On Railway, /data is a persistent volume. We copy default files there
+// on first deploy, then use /data as the source of truth for all mutable data.
+const VOLUME_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH || (fs.existsSync('/data') ? '/data' : '');
+const DATA_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'db') : path.join(__dirname, 'data');
+const I18N_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'i18n') : path.join(__dirname, 'i18n');
+const IMAGES_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'images') : path.join(__dirname, 'images');
+
+if (VOLUME_PATH) {
+    console.log('[Volume] Persistent volume detected at', VOLUME_PATH);
+    // Ensure directories exist
+    [DATA_DIR, I18N_DIR, IMAGES_DIR].forEach(dir => {
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    });
+
+    // Copy default data files if not yet present on volume
+    const srcData = path.join(__dirname, 'data');
+    if (fs.existsSync(srcData)) {
+        fs.readdirSync(srcData).forEach(f => {
+            if (f.endsWith('.json')) {
+                const dest = path.join(DATA_DIR, f);
+                if (!fs.existsSync(dest)) {
+                    fs.copyFileSync(path.join(srcData, f), dest);
+                    console.log('[Volume] Copied default', f, 'to volume');
+                }
+            }
+        });
+    }
+
+    // Copy default i18n files if not yet present on volume
+    const srcI18n = path.join(__dirname, 'i18n');
+    if (fs.existsSync(srcI18n)) {
+        fs.readdirSync(srcI18n).forEach(f => {
+            if (f.endsWith('.json')) {
+                const dest = path.join(I18N_DIR, f);
+                if (!fs.existsSync(dest)) {
+                    fs.copyFileSync(path.join(srcI18n, f), dest);
+                    console.log('[Volume] Copied default', f, 'to volume');
+                }
+            }
+        });
+    }
+} else {
+    console.log('[Volume] No persistent volume — using local directories');
+}
+
+// Export paths for other modules
+process.env._DATA_DIR = DATA_DIR;
+process.env._I18N_DIR = I18N_DIR;
+
 // Database initialization
 const { seed } = require('./db/seed');
 seed();
@@ -18,7 +68,7 @@ const { adminAuth } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CONTENT_PATH = path.join(__dirname, 'data', 'content.json');
+const CONTENT_PATH = path.join(DATA_DIR, 'content.json');
 
 // Rainbow config
 const RAINBOW_DOMAIN = process.env.RAINBOW_DOMAIN || 'https://sandbox.openrainbow.com';
@@ -96,7 +146,7 @@ app.use((req, res, next) => {
 // Multer storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, 'images'));
+        cb(null, IMAGES_DIR);
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);
@@ -108,6 +158,10 @@ const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } 
 
 // Static files
 app.use(express.static(__dirname, { index: false }));
+// Serve uploaded images from persistent volume (overrides local /images)
+if (VOLUME_PATH) {
+    app.use('/images', express.static(IMAGES_DIR));
+}
 
 // ===================== SERVER-SIDE I18N =====================
 
@@ -118,7 +172,7 @@ const translatedPageCache = {};
 function loadI18nFile(lang) {
     if (i18nFileCache[lang]) return i18nFileCache[lang];
     try {
-        const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'i18n', lang + '.json'), 'utf8'));
+        const data = JSON.parse(fs.readFileSync(path.join(I18N_DIR, lang + '.json'), 'utf8'));
         i18nFileCache[lang] = data;
         return data;
     } catch (e) { return null; }
@@ -289,7 +343,7 @@ app.get('/api/content', (req, res) => {
         const lang = req.query.lang;
         let filePath = CONTENT_PATH;
         if (lang && lang !== 'en' && /^[a-z]{2}$/.test(lang)) {
-            const localizedPath = path.join(__dirname, 'data', 'content.' + lang + '.json');
+            const localizedPath = path.join(DATA_DIR, 'content.' + lang + '.json');
             if (fs.existsSync(localizedPath)) filePath = localizedPath;
         }
         const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
