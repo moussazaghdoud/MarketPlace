@@ -7,75 +7,6 @@
     var currentTranslations = {};
     var SUPPORTED = ['en', 'fr', 'es', 'it', 'de'];
     var DEFAULT_LANG = 'en';
-    var earlyApplied = false;
-
-    // --- Early translation via MutationObserver ---
-    // Since i18n.js loads in <head> (blocks parsing), the body doesn't exist yet.
-    // If we have cached translations, set up an observer that translates elements
-    // as the browser creates them — before they are ever painted. No flash.
-    var detectedLang = (function () {
-        var stored = localStorage.getItem('lang');
-        if (stored && SUPPORTED.indexOf(stored) !== -1) return stored;
-        var nav = (navigator.language || navigator.userLanguage || '').slice(0, 2).toLowerCase();
-        return SUPPORTED.indexOf(nav) !== -1 ? nav : DEFAULT_LANG;
-    })();
-
-    if (detectedLang !== 'en') {
-        try {
-            var langRaw = localStorage.getItem('i18n_' + detectedLang);
-            var enRaw = localStorage.getItem('i18n_en');
-            if (langRaw) {
-                var earlyTr = JSON.parse(langRaw);
-                var earlyEn = enRaw ? JSON.parse(enRaw) : {};
-                cache[detectedLang] = earlyTr;
-                if (enRaw) cache['en'] = earlyEn;
-                currentLang = detectedLang;
-                currentTranslations = earlyTr;
-
-                function earlyGetKey(obj, key) {
-                    var p = key.split('.'), v = obj;
-                    for (var i = 0; i < p.length; i++) { if (v == null) return; v = v[p[i]]; }
-                    return v;
-                }
-                function earlyT(k) {
-                    var v = earlyGetKey(earlyTr, k);
-                    if (v !== undefined) return v;
-                    v = earlyGetKey(earlyEn, k);
-                    return v !== undefined ? v : undefined;
-                }
-                function translateEl(el) {
-                    var k, v;
-                    k = el.getAttribute('data-i18n');
-                    if (k) { v = earlyT(k); if (v !== undefined) el.textContent = v; }
-                    k = el.getAttribute('data-i18n-html');
-                    if (k) { v = earlyT(k); if (v !== undefined) el.innerHTML = v; }
-                    k = el.getAttribute('data-i18n-placeholder');
-                    if (k) { v = earlyT(k); if (v !== undefined) el.placeholder = v; }
-                }
-                function translateTree(node) {
-                    if (node.nodeType !== 1) return;
-                    translateEl(node);
-                    var els = node.querySelectorAll('[data-i18n],[data-i18n-html],[data-i18n-placeholder]');
-                    for (var i = 0; i < els.length; i++) translateEl(els[i]);
-                }
-
-                var observer = new MutationObserver(function (mutations) {
-                    for (var i = 0; i < mutations.length; i++) {
-                        var added = mutations[i].addedNodes;
-                        for (var j = 0; j < added.length; j++) translateTree(added[j]);
-                    }
-                });
-                observer.observe(document.documentElement, { childList: true, subtree: true });
-
-                // Stop observing once DOM is complete
-                document.addEventListener('DOMContentLoaded', function () {
-                    observer.disconnect();
-                });
-
-                earlyApplied = true;
-            }
-        } catch (e) { /* corrupted localStorage, fall back to normal flow */ }
-    }
 
     // Detect language: localStorage > browser > default
     function detectLang() {
@@ -91,7 +22,7 @@
         try {
             var stored = localStorage.getItem('i18n_' + lang);
             if (stored) cache[lang] = JSON.parse(stored);
-        } catch (e) { /* corrupted */ }
+        } catch (e) {}
 
         var base = window.location.origin;
         var fetching = fetch(base + '/i18n/' + lang + '.json')
@@ -173,12 +104,6 @@
         if (sw && !sw.contains(e.target)) sw.classList.remove('open');
     });
 
-    // Remove the FOUC-prevention style (first-visit fallback)
-    function revealContent() {
-        var h = document.getElementById('i18n-hide');
-        if (h) h.parentNode.removeChild(h);
-    }
-
     // Apply translations to all data-i18n elements on the page
     function applyTranslations() {
         document.querySelectorAll('[data-i18n]').forEach(function (el) {
@@ -210,30 +135,16 @@
             currentTranslations = data;
             applyTranslations();
             initLangSwitcher();
-            revealContent();
             window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
         });
     }
 
-    // Initialize on DOMContentLoaded
+    // Initialize
     function init() {
         var lang = detectLang();
         currentLang = lang;
 
-        if (earlyApplied) {
-            // MutationObserver already translated everything — just init switcher & refresh cache
-            initLangSwitcher();
-            revealContent();
-            document.documentElement.lang = lang;
-            window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
-            // Background refresh
-            var base = window.location.origin;
-            fetch(base + '/i18n/en.json').then(function (r) { return r.json(); }).then(function (d) { cache['en'] = d; try { localStorage.setItem('i18n_en', JSON.stringify(d)); } catch (e) {} });
-            if (lang !== 'en') fetch(base + '/i18n/' + lang + '.json').then(function (r) { return r.json(); }).then(function (d) { cache[lang] = d; try { localStorage.setItem('i18n_' + lang, JSON.stringify(d)); } catch (e) {} });
-            return;
-        }
-
-        // No early apply — load translations (from localStorage or server)
+        // Load from localStorage synchronously (instant, no network)
         try {
             var enRaw = localStorage.getItem('i18n_en');
             if (enRaw) cache['en'] = JSON.parse(enRaw);
@@ -244,22 +155,23 @@
         } catch (e) {}
 
         if (cache[lang] || cache['en']) {
+            // Instant path from cache
             currentTranslations = cache[lang] || cache['en'];
             applyTranslations();
             initLangSwitcher();
-            revealContent();
             window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
-            var base2 = window.location.origin;
-            fetch(base2 + '/i18n/en.json').then(function (r) { return r.json(); }).then(function (d) { cache['en'] = d; try { localStorage.setItem('i18n_en', JSON.stringify(d)); } catch (e) {} });
-            if (lang !== 'en') fetch(base2 + '/i18n/' + lang + '.json').then(function (r) { return r.json(); }).then(function (d) { cache[lang] = d; try { localStorage.setItem('i18n_' + lang, JSON.stringify(d)); } catch (e) {} });
+            // Background refresh
+            var base = window.location.origin;
+            fetch(base + '/i18n/en.json').then(function (r) { return r.json(); }).then(function (d) { cache['en'] = d; try { localStorage.setItem('i18n_en', JSON.stringify(d)); } catch (e) {} });
+            if (lang !== 'en') fetch(base + '/i18n/' + lang + '.json').then(function (r) { return r.json(); }).then(function (d) { cache[lang] = d; try { localStorage.setItem('i18n_' + lang, JSON.stringify(d)); } catch (e) {} });
         } else {
+            // First visit — fetch from server
             var promises = [loadTranslations('en')];
             if (lang !== 'en') promises.push(loadTranslations(lang));
             Promise.all(promises).then(function () {
                 currentTranslations = cache[lang] || cache['en'];
                 applyTranslations();
                 initLangSwitcher();
-                revealContent();
                 window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
             });
         }
