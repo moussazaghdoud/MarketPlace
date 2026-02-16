@@ -57,6 +57,14 @@
             border-color: #4F6DF5;
             box-shadow: 0 0 0 3px rgba(79, 109, 245, 0.15);
         }
+        .lang-switcher { position: relative; }
+        .lang-switcher button { display: flex; align-items: center; gap: 4px; font-size: 0.8125rem; color: #64748b; cursor: pointer; background: none; border: none; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
+        .lang-switcher button:hover { color: #0f172a; }
+        .lang-switcher .lang-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 140px; z-index: 200; padding: 4px 0; margin-top: 4px; }
+        .lang-switcher.open .lang-dropdown { display: block; }
+        .lang-dropdown button { display: block; width: 100%; text-align: left; padding: 8px 14px; font-size: 0.8125rem; color: #374151; border: none; background: none; cursor: pointer; }
+        .lang-dropdown button:hover { background: #f1f5f9; }
+        .lang-dropdown button.active { color: #4F6DF5; font-weight: 600; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -69,28 +77,36 @@
                 <span class="text-lg font-bold text-gray-900">Rainbow</span>
             </a>
             <div class="hidden md:flex items-center gap-6">
-                <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Home</a>
-                <a href="/products" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Product</a>
-                <a href="/#pricing" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Offers</a>
-                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Blog</a>
-                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Reviews</a>
-                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Support</a>
-                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Tutorials</a>
-                <a href="/login" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors">Sign in</a>
+                <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.home">Home</a>
+                <a href="/products" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.product">Product</a>
+                <a href="/#pricing" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.offers">Offers</a>
+                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.blog">Blog</a>
+                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.reviews">Reviews</a>
+                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.support">Support</a>
+                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.tutorials">Tutorials</a>
+                <div class="lang-switcher" id="lang-switcher">
+                    <button onclick="document.getElementById('lang-switcher').classList.toggle('open')">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
+                        <span id="lang-current">EN</span>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown"></div>
+                </div>
+                <a href="/login" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors" data-i18n="nav.signin">Sign in</a>
             </div>
             <button id="mobile-menu-btn" class="md:hidden p-2" aria-label="Menu">
                 <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </div>
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
-            <a href="/" class="block text-sm text-gray-600 py-2">Home</a>
-            <a href="/products" class="block text-sm text-gray-600 py-2">Product</a>
-            <a href="/#pricing" class="block text-sm text-gray-600 py-2">Offers</a>
-            <a href="/blog" class="block text-sm text-gray-600 py-2">Blog</a>
-            <a href="/reviews" class="block text-sm text-gray-600 py-2">Reviews</a>
-            <a href="/support" class="block text-sm text-gray-600 py-2">Support</a>
-            <a href="/tutorials" class="block text-sm text-gray-600 py-2">Tutorials</a>
-            <a href="/login" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5">Sign in</a>
+            <a href="/" class="block text-sm text-gray-600 py-2" data-i18n="nav.home">Home</a>
+            <a href="/products" class="block text-sm text-gray-600 py-2" data-i18n="nav.product">Product</a>
+            <a href="/#pricing" class="block text-sm text-gray-600 py-2" data-i18n="nav.offers">Offers</a>
+            <a href="/blog" class="block text-sm text-gray-600 py-2" data-i18n="nav.blog">Blog</a>
+            <a href="/reviews" class="block text-sm text-gray-600 py-2" data-i18n="nav.reviews">Reviews</a>
+            <a href="/support" class="block text-sm text-gray-600 py-2" data-i18n="nav.support">Support</a>
+            <a href="/tutorials" class="block text-sm text-gray-600 py-2" data-i18n="nav.tutorials">Tutorials</a>
+            <div id="mobile-lang-switcher" class="flex flex-wrap gap-2 py-2"></div>
+            <a href="/login" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5" data-i18n="nav.signin">Sign in</a>
         </div>
     </nav>
 
@@ -100,19 +116,19 @@
         <div class="text-center mb-8">
             <div class="inline-flex items-center gap-3 mb-2" style="transform: translateX(-0.75rem);">
                 <img src="/img/rainbow-logo.png" alt="Rainbow" class="w-11 h-11">
-                <span class="text-2xl font-bold text-gray-900">Rainbow</span>
+                <span class="text-2xl font-bold text-gray-900" data-i18n="login.brand">Rainbow</span>
             </div>
-            <p class="text-gray-500 text-sm">Unified Communication Platform</p>
+            <p class="text-gray-500 text-sm" data-i18n="login.subtitle">Unified Communication Platform</p>
         </div>
 
         <!-- Card -->
         <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/60 border border-gray-100 overflow-hidden">
             <!-- Tabs -->
             <div class="flex border-b border-gray-100">
-                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-4 text-sm font-semibold text-center transition-colors tab-active">
+                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-4 text-sm font-semibold text-center transition-colors tab-active" data-i18n="login.tabSignIn">
                     Sign In
                 </button>
-                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-4 text-sm font-semibold text-center transition-colors tab-inactive">
+                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-4 text-sm font-semibold text-center transition-colors tab-inactive" data-i18n="login.tabRegister">
                     Register
                 </button>
             </div>
@@ -124,14 +140,14 @@
                 <!-- Login Form -->
                 <form id="form-login" class="space-y-5 fade-in" onsubmit="handleLogin(event)">
                     <div>
-                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
-                        <input type="email" id="login-email" required placeholder="you@company.com"
+                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.emailLabel">Email address</label>
+                        <input type="email" id="login-email" required placeholder="you@company.com" data-i18n-placeholder="login.emailPlaceholder"
                             class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all">
                     </div>
                     <div>
-                        <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.passwordLabel">Password</label>
                         <div class="relative">
-                            <input type="password" id="login-password" required placeholder="Your password"
+                            <input type="password" id="login-password" required placeholder="Your password" data-i18n-placeholder="login.passwordPlaceholder"
                                 class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all pr-10">
                             <button type="button" onclick="togglePassword('login-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 <svg class="w-5 h-5 eye-off" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
@@ -142,14 +158,14 @@
                     <div class="flex items-center justify-between">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" id="remember-me" class="w-4 h-4 rounded border-gray-300 text-rainbow-500 focus:ring-rainbow-500">
-                            <span class="text-sm text-gray-600">Remember me</span>
+                            <span class="text-sm text-gray-600" data-i18n="login.rememberMe">Remember me</span>
                         </label>
-                        <button type="button" onclick="showForgotPassword()" class="text-sm text-rainbow-500 hover:text-rainbow-600 font-medium">
+                        <button type="button" onclick="showForgotPassword()" class="text-sm text-rainbow-500 hover:text-rainbow-600 font-medium" data-i18n="login.forgotPassword">
                             Forgot password?
                         </button>
                     </div>
                     <button type="submit" id="btn-login"
-                        class="w-full py-2.5 px-4 bg-rainbow-500 hover:bg-rainbow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                        class="w-full py-2.5 px-4 bg-rainbow-500 hover:bg-rainbow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed" data-i18n="login.signInBtn">
                         Sign In
                     </button>
                 </form>
@@ -158,25 +174,25 @@
                 <form id="form-register" class="space-y-5 fade-in hidden" onsubmit="handleRegister(event)">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label for="reg-firstName" class="block text-sm font-medium text-gray-700 mb-1.5">First name</label>
-                            <input type="text" id="reg-firstName" required placeholder="John"
+                            <label for="reg-firstName" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.firstNameLabel">First name</label>
+                            <input type="text" id="reg-firstName" required placeholder="John" data-i18n-placeholder="login.firstNamePlaceholder"
                                 class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all">
                         </div>
                         <div>
-                            <label for="reg-lastName" class="block text-sm font-medium text-gray-700 mb-1.5">Last name</label>
-                            <input type="text" id="reg-lastName" required placeholder="Smith"
+                            <label for="reg-lastName" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.lastNameLabel">Last name</label>
+                            <input type="text" id="reg-lastName" required placeholder="Smith" data-i18n-placeholder="login.lastNamePlaceholder"
                                 class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all">
                         </div>
                     </div>
                     <div>
-                        <label for="reg-email" class="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
-                        <input type="email" id="reg-email" required placeholder="you@company.com"
+                        <label for="reg-email" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.emailLabel">Email address</label>
+                        <input type="email" id="reg-email" required placeholder="you@company.com" data-i18n-placeholder="login.emailPlaceholder"
                             class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all">
                     </div>
                     <div>
-                        <label for="reg-password" class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                        <label for="reg-password" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.passwordLabel">Password</label>
                         <div class="relative">
-                            <input type="password" id="reg-password" required placeholder="Min. 8 characters"
+                            <input type="password" id="reg-password" required placeholder="Min. 8 characters" data-i18n-placeholder="login.passwordMinChars"
                                 class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all pr-10">
                             <button type="button" onclick="togglePassword('reg-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 <svg class="w-5 h-5 eye-off" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
@@ -185,15 +201,15 @@
                         </div>
                     </div>
                     <div>
-                        <label for="reg-confirmPassword" class="block text-sm font-medium text-gray-700 mb-1.5">Confirm password</label>
-                        <input type="password" id="reg-confirmPassword" required placeholder="Re-enter your password"
+                        <label for="reg-confirmPassword" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.confirmPasswordLabel">Confirm password</label>
+                        <input type="password" id="reg-confirmPassword" required placeholder="Re-enter your password" data-i18n-placeholder="login.confirmPasswordPlaceholder"
                             class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all">
                     </div>
                     <button type="submit" id="btn-register"
-                        class="w-full py-2.5 px-4 bg-rainbow-500 hover:bg-rainbow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                        class="w-full py-2.5 px-4 bg-rainbow-500 hover:bg-rainbow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed" data-i18n="login.createAccountBtn">
                         Create my account
                     </button>
-                    <p class="text-xs text-gray-500 text-center">
+                    <p class="text-xs text-gray-500 text-center" data-i18n-html="login.termsNotice">
                         By signing up, you agree to our
                         <a href="#" class="text-rainbow-500 hover:underline">Terms of Service</a> and
                         <a href="#" class="text-rainbow-500 hover:underline">Privacy Policy</a>.
@@ -206,19 +222,19 @@
                         <div class="w-12 h-12 bg-rainbow-50 rounded-full flex items-center justify-center mx-auto mb-3">
                             <svg class="w-6 h-6 text-rainbow-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900">Forgot your password?</h3>
-                        <p class="text-sm text-gray-500 mt-1">Enter your email address and we'll send you a reset link.</p>
+                        <h3 class="text-lg font-semibold text-gray-900" data-i18n="login.forgotTitle">Forgot your password?</h3>
+                        <p class="text-sm text-gray-500 mt-1" data-i18n="login.forgotDescription">Enter your email address and we'll send you a reset link.</p>
                     </div>
                     <div>
-                        <label for="forgot-email" class="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
-                        <input type="email" id="forgot-email" required placeholder="you@company.com"
+                        <label for="forgot-email" class="block text-sm font-medium text-gray-700 mb-1.5" data-i18n="login.emailLabel">Email address</label>
+                        <input type="email" id="forgot-email" required placeholder="you@company.com" data-i18n-placeholder="login.emailPlaceholder"
                             class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all">
                     </div>
                     <button type="submit" id="btn-forgot"
-                        class="w-full py-2.5 px-4 bg-rainbow-500 hover:bg-rainbow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                        class="w-full py-2.5 px-4 bg-rainbow-500 hover:bg-rainbow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed" data-i18n="login.sendResetLink">
                         Send reset link
                     </button>
-                    <button type="button" onclick="hideForgotPassword()" class="w-full py-2.5 px-4 text-gray-600 hover:text-gray-800 font-medium text-sm transition-colors">
+                    <button type="button" onclick="hideForgotPassword()" class="w-full py-2.5 px-4 text-gray-600 hover:text-gray-800 font-medium text-sm transition-colors" data-i18n="login.backToSignIn">
                         Back to sign in
                     </button>
                 </form>
@@ -226,19 +242,26 @@
         </div>
 
         <!-- Footer -->
-        <p class="text-center text-xs text-gray-400 mt-6">
+        <p class="text-center text-xs text-gray-400 mt-6" data-i18n-html="footer.copyright">
             &copy; 2026 Rainbow by Alcatel-Lucent Enterprise. All rights reserved.
         </p>
     </div>
     </div>
 
+    <script src="/js/i18n.js"></script>
     <script>
         // Mobile menu toggle
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
+        // Close lang-switcher on outside click
+        document.addEventListener('click', function(e) {
+            var sw = document.getElementById('lang-switcher');
+            if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+        });
     </script>
     <script>
+        function t(k,f){return typeof i18n!=='undefined'?i18n.t(k,f):f;}
         // =============================================
         // Configuration
         // =============================================
@@ -362,7 +385,7 @@
             hideMessage();
             const btn = document.getElementById('btn-login');
             btn.disabled = true;
-            btn.textContent = 'Signing in...';
+            btn.textContent = t('login.signingIn','Signing in...');
 
             try {
                 const email = document.getElementById('login-email').value.trim();
@@ -375,14 +398,14 @@
                     localStorage.setItem('client', JSON.stringify(data.client));
                 }
 
-                showMessage('Login successful! Redirecting...', 'success');
+                showMessage(t('login.loginSuccess','Login successful! Redirecting...'), 'success');
                 setTimeout(() => {
                     window.location.href = getPortalRedirect();
                 }, 500);
             } catch (err) {
                 showMessage(err.message, 'error');
                 btn.disabled = false;
-                btn.textContent = 'Sign In';
+                btn.textContent = t('login.signInBtn','Sign In');
             }
         }
 
@@ -400,18 +423,18 @@
             const confirmPassword = document.getElementById('reg-confirmPassword').value;
 
             if (password.length < 8) {
-                showMessage('Password must be at least 8 characters.', 'error');
+                showMessage(t('login.passwordMin8','Password must be at least 8 characters.'), 'error');
                 return;
             }
 
             if (password !== confirmPassword) {
-                showMessage('Passwords do not match.', 'error');
+                showMessage(t('login.passwordsNoMatch','Passwords do not match.'), 'error');
                 return;
             }
 
             const btn = document.getElementById('btn-register');
             btn.disabled = true;
-            btn.textContent = 'Creating account...';
+            btn.textContent = t('login.creatingAccount','Creating account...');
 
             try {
                 const data = await apiRequest('/api/client/register', 'POST', {
@@ -423,14 +446,14 @@
                     localStorage.setItem('client', JSON.stringify(data.client));
                 }
 
-                showMessage('Account created successfully! Redirecting...', 'success');
+                showMessage(t('login.accountCreated','Account created successfully! Redirecting...'), 'success');
                 setTimeout(() => {
                     window.location.href = getPortalRedirect();
                 }, 500);
             } catch (err) {
                 showMessage(err.message, 'error');
                 btn.disabled = false;
-                btn.textContent = 'Create my account';
+                btn.textContent = t('login.createAccountBtn','Create my account');
             }
         }
 
@@ -442,18 +465,18 @@
             hideMessage();
             const btn = document.getElementById('btn-forgot');
             btn.disabled = true;
-            btn.textContent = 'Sending...';
+            btn.textContent = t('login.sendingReset','Sending...');
 
             try {
                 const email = document.getElementById('forgot-email').value.trim();
                 await apiRequest('/api/client/forgot-password', 'POST', { email });
-                showMessage('If an account exists with this email, a reset link has been sent.', 'success');
+                showMessage(t('login.resetSent','If an account exists with this email, a reset link has been sent.'), 'success');
             } catch (err) {
                 // For security, always show the same message
-                showMessage('If an account exists with this email, a reset link has been sent.', 'success');
+                showMessage(t('login.resetSent','If an account exists with this email, a reset link has been sent.'), 'success');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Send reset link';
+                btn.textContent = t('login.sendResetLink','Send reset link');
             }
         }
 

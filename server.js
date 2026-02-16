@@ -187,10 +187,16 @@ app.get('/api/products/:slug', (req, res) => {
     });
 });
 
-// --- Content management (JSON file) ---
+// --- Content management (JSON file, with optional lang param) ---
 app.get('/api/content', (req, res) => {
     try {
-        const data = JSON.parse(fs.readFileSync(CONTENT_PATH, 'utf8'));
+        const lang = req.query.lang;
+        let filePath = CONTENT_PATH;
+        if (lang && lang !== 'en' && /^[a-z]{2}$/.test(lang)) {
+            const localizedPath = path.join(__dirname, 'data', 'content.' + lang + '.json');
+            if (fs.existsSync(localizedPath)) filePath = localizedPath;
+        }
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: 'Failed to read content' });

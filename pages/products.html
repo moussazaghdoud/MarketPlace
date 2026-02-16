@@ -21,6 +21,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    .lang-switcher { position: relative; }
+    .lang-switcher button { display: flex; align-items: center; gap: 4px; font-size: 0.8125rem; color: #64748b; cursor: pointer; background: none; border: none; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
+    .lang-switcher button:hover { color: #0f172a; }
+    .lang-switcher .lang-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 140px; z-index: 200; padding: 4px 0; margin-top: 4px; }
+    .lang-switcher.open .lang-dropdown { display: block; }
+    .lang-dropdown button { display: block; width: 100%; text-align: left; padding: 8px 14px; font-size: 0.8125rem; color: #374151; border: none; background: none; cursor: pointer; }
+    .lang-dropdown button:hover { background: #f1f5f9; }
+    .lang-dropdown button.active { color: #4F6DF5; font-weight: 600; }
+</style>
 </head>
 <body class="font-sans text-gray-700 antialiased bg-white">
 
@@ -32,37 +42,45 @@
                 <span class="text-lg font-bold text-gray-900">Rainbow</span>
             </a>
             <div class="hidden md:flex items-center gap-6">
-                <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Home</a>
-                <a href="/products" class="text-sm font-medium text-brand-500 transition-colors">Product</a>
-                <a href="/#pricing" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Offers</a>
-                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Blog</a>
-                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Reviews</a>
-                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Support</a>
-                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Tutorials</a>
-                <a href="/login" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors">Sign in</a>
+                <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.home">Home</a>
+                <a href="/products" class="text-sm font-medium text-brand-500 transition-colors" data-i18n="nav.product">Product</a>
+                <a href="/#pricing" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.offers">Offers</a>
+                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.blog">Blog</a>
+                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.reviews">Reviews</a>
+                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.support">Support</a>
+                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.tutorials">Tutorials</a>
+                <div class="lang-switcher" id="lang-switcher">
+                    <button onclick="document.getElementById('lang-switcher').classList.toggle('open')">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
+                        <span id="lang-current">EN</span>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown"></div>
+                </div>
+                <a href="/login" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors" data-i18n="nav.signin">Sign in</a>
             </div>
             <button id="mobile-menu-btn" class="md:hidden p-2" aria-label="Menu">
                 <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </div>
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
-            <a href="/" class="block text-sm text-gray-600 py-2">Home</a>
-            <a href="/products" class="block text-sm font-medium text-brand-500 py-2">Product</a>
-            <a href="/#pricing" class="block text-sm text-gray-600 py-2">Offers</a>
-            <a href="/blog" class="block text-sm text-gray-600 py-2">Blog</a>
-            <a href="/reviews" class="block text-sm text-gray-600 py-2">Reviews</a>
-            <a href="/support" class="block text-sm text-gray-600 py-2">Support</a>
-            <a href="/tutorials" class="block text-sm text-gray-600 py-2">Tutorials</a>
-            <a href="/login" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5">Sign in</a>
+            <a href="/" class="block text-sm text-gray-600 py-2" data-i18n="nav.home">Home</a>
+            <a href="/products" class="block text-sm font-medium text-brand-500 py-2" data-i18n="nav.product">Product</a>
+            <a href="/#pricing" class="block text-sm text-gray-600 py-2" data-i18n="nav.offers">Offers</a>
+            <a href="/blog" class="block text-sm text-gray-600 py-2" data-i18n="nav.blog">Blog</a>
+            <a href="/reviews" class="block text-sm text-gray-600 py-2" data-i18n="nav.reviews">Reviews</a>
+            <a href="/support" class="block text-sm text-gray-600 py-2" data-i18n="nav.support">Support</a>
+            <a href="/tutorials" class="block text-sm text-gray-600 py-2" data-i18n="nav.tutorials">Tutorials</a>
+            <div id="mobile-lang-switcher" class="flex flex-wrap gap-2 py-2"></div>
+            <a href="/login" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5" data-i18n="nav.signin">Sign in</a>
         </div>
     </nav>
 
     <!-- HERO -->
     <header class="pt-28 pb-16 px-6 bg-gradient-to-br from-brand-100 via-white to-white">
         <div class="max-w-5xl mx-auto text-center">
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-4">Our Solutions</span>
-            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">Rainbow Product Family</h1>
-            <p class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">Unified communication solutions designed for every business need — from team collaboration to large-scale webinars and smart hospitality.</p>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-4" data-i18n="products.heroTag">Our Solutions</span>
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight" data-i18n="products.heroTitle">Rainbow Product Family</h1>
+            <p class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto" data-i18n="products.heroDescription">Unified communication solutions designed for every business need — from team collaboration to large-scale webinars and smart hospitality.</p>
         </div>
     </header>
 
@@ -72,7 +90,7 @@
             <!-- Loading state -->
             <div class="col-span-full text-center py-12">
                 <div class="inline-block w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-                <p class="mt-3 text-gray-400 text-sm">Loading products...</p>
+                <p class="mt-3 text-gray-400 text-sm" data-i18n="products.loading">Loading products...</p>
             </div>
         </div>
     </section>
@@ -80,9 +98,9 @@
     <!-- CTA -->
     <section class="py-16 px-6 bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-500">
         <div class="max-w-2xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-white">Ready to transform your communication?</h2>
-            <p class="mt-2 text-blue-100 text-sm">Start with Rainbow Collaboration today. More products coming soon.</p>
-            <a href="/login" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors">
+            <h2 class="text-2xl font-bold text-white" data-i18n="products.ctaTitle">Ready to transform your communication?</h2>
+            <p class="mt-2 text-blue-100 text-sm" data-i18n="products.ctaDescription">Start with Rainbow Collaboration today. More products coming soon.</p>
+            <a href="/login" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors" data-i18n="products.ctaBtn">
                 Get started now
             </a>
         </div>
@@ -93,52 +111,60 @@
         <div class="max-w-6xl mx-auto">
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Product</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.product">Product</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/products" class="hover:text-white transition-colors">All Products</a></li>
-                        <li><a href="/#features" class="hover:text-white transition-colors">Features</a></li>
-                        <li><a href="/#pricing" class="hover:text-white transition-colors">Pricing</a></li>
-                        <li><a href="/#demo" class="hover:text-white transition-colors">Demo</a></li>
+                        <li><a href="/products" class="hover:text-white transition-colors" data-i18n="footer.rainbow">Rainbow</a></li>
+                        <li><a href="/#features" class="hover:text-white transition-colors" data-i18n="footer.features">Features</a></li>
+                        <li><a href="/#pricing" class="hover:text-white transition-colors" data-i18n="footer.pricing">Pricing</a></li>
+                        <li><a href="/#demo" class="hover:text-white transition-colors" data-i18n="footer.demo">Demo</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Resources</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.resources">Resources</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/blog" class="hover:text-white transition-colors">Blog</a></li>
-                        <li><a href="/tutorials" class="hover:text-white transition-colors">Tutorials</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">API Documentation</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Changelog</a></li>
+                        <li><a href="/blog" class="hover:text-white transition-colors" data-i18n="footer.blog">Blog</a></li>
+                        <li><a href="/tutorials" class="hover:text-white transition-colors" data-i18n="footer.tutorials">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.apiDocs">API Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.changelog">Changelog</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Support</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.support">Support</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/support" class="hover:text-white transition-colors">Help Center</a></li>
-                        <li><a href="/support" class="hover:text-white transition-colors">Contact Us</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Service Status</a></li>
-                        <li><a href="/reviews" class="hover:text-white transition-colors">Customer Reviews</a></li>
+                        <li><a href="/support" class="hover:text-white transition-colors" data-i18n="footer.helpCenter">Help Center</a></li>
+                        <li><a href="/support" class="hover:text-white transition-colors" data-i18n="footer.contactUs">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.serviceStatus">Service Status</a></li>
+                        <li><a href="/reviews" class="hover:text-white transition-colors" data-i18n="footer.customerReviews">Customer Reviews</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Company</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.company">Company</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">About</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Legal Notice</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.about">About</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.careers">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.legalNotice">Legal Notice</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.privacyPolicy">Privacy Policy</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
+            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500" data-i18n-html="footer.copyright">
                 &copy; 2026 Rainbow by Alcatel-Lucent Enterprise. All rights reserved.
             </div>
         </div>
     </footer>
 
+    <script src="/js/i18n.js"></script>
     <script>
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
+
+        document.addEventListener('click', function(e) {
+            var sw = document.getElementById('lang-switcher');
+            if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+        });
+
+        function t(k,f){return typeof i18n!=='undefined'?i18n.t(k,f):f;}
 
         // Gradient and icon config per product slug
         var productStyles = {
@@ -157,7 +183,7 @@
                 var products = await res.json();
 
                 if (!products.length) {
-                    grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-400">No products available yet.</p></div>';
+                    grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-400">' + t('products.noProducts','No products available yet.') + '</p></div>';
                     return;
                 }
 
@@ -166,8 +192,8 @@
                 grid.innerHTML = products.map(function(p) {
                     var style = productStyles[p.slug] || defaultStyle;
                     var actionHtml = hasPlans(p)
-                        ? '<a href="/product/' + esc(p.slug) + '" class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-500 hover:text-brand-600 transition-colors">Learn more <span>&rarr;</span></a>'
-                        : '<span class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-400">Coming soon</span>';
+                        ? '<a href="/product/' + esc(p.slug) + '" class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-500 hover:text-brand-600 transition-colors">' + t('products.learnMore','Learn more') + ' <span>&rarr;</span></a>'
+                        : '<span class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-400">' + t('products.comingSoon','Coming soon') + '</span>';
 
                     var hasImage = p.gallery && p.gallery.length > 0 && p.gallery[0];
                     var headerHtml = hasImage
@@ -187,11 +213,13 @@
                     '</div>';
                 }).join('');
             } catch(e) {
-                grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-red-400">Failed to load products.</p></div>';
+                grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-red-400">' + t('products.loadError','Failed to load products.') + '</p></div>';
             }
         }
 
         loadProducts();
+
+        window.addEventListener('langchange', function() { loadProducts(); });
     </script>
 </body>
 </html>
