@@ -50,6 +50,7 @@ router.post('/', async (req, res) => {
         });
     }
     if (!product) return res.status(404).json({ error: 'Product not found' });
+    productId = product.id; // Ensure productId is set even when resolved by planKey
     if (!planKey) return res.status(400).json({ error: 'planKey required' });
 
     const plans = JSON.parse(product.plans || '{}');
