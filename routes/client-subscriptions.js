@@ -20,10 +20,16 @@ router.get('/', (req, res) => {
         ORDER BY s.createdAt DESC
     `).all(req.client.id);
 
-    res.json(subs.map(s => ({
-        ...s,
-        productPlans: JSON.parse(s.productPlans || '{}')
-    })));
+    res.json(subs.map(s => {
+        const plans = JSON.parse(s.productPlans || '{}');
+        const plan = plans[s.planKey] || {};
+        return {
+            ...s,
+            productPlans: plans,
+            planName: plan.name || s.planKey || 'Unknown Plan',
+            price: (plan.pricePerUser || 0) * 100
+        };
+    }));
 });
 
 // POST /api/client/subscriptions - Create subscription
