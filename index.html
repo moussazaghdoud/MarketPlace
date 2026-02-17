@@ -51,39 +51,57 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .lang-switcher { position: relative; }
+        .lang-switcher button { display: flex; align-items: center; gap: 4px; font-size: 0.8125rem; color: #64748b; cursor: pointer; background: none; border: none; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
+        .lang-switcher button:hover { color: #0f172a; }
+        .lang-switcher .lang-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 140px; z-index: 200; padding: 4px 0; margin-top: 4px; }
+        .lang-switcher.open .lang-dropdown { display: block; }
+        .lang-dropdown button { display: block; width: 100%; text-align: left; padding: 8px 14px; font-size: 0.8125rem; color: #374151; border: none; background: none; cursor: pointer; }
+        .lang-dropdown button:hover { background: #f1f5f9; }
+        .lang-dropdown button.active { color: #4F6DF5; font-weight: 600; }
+    </style>
 </head>
 <body class="font-sans text-gray-700 antialiased bg-white">
 
     <!-- NAV -->
     <nav id="navbar" class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
-            <a href="#" class="flex items-center gap-3">
-                <img src="images/ale-logo.png" alt="Alcatel-Lucent Enterprise" class="h-7 w-auto">
-                <span class="text-gray-300">|</span>
-                <img src="images/rainbow-logo.png" alt="Rainbow" class="h-7 w-auto">
-                <span class="text-base font-bold text-gray-900">Rainbow</span>
+            <a href="/" class="flex items-center gap-2">
+                <img src="/img/rainbow-logo.png" alt="Rainbow" class="w-8 h-8 rounded-lg">
+                <span class="text-lg font-bold text-gray-900">Rainbow</span>
             </a>
             <div class="hidden md:flex items-center gap-6">
-                <a href="#features" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Features</a>
-                <a href="#pricing" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Pricing</a>
-                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Blog</a>
-                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Avis</a>
-                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Support</a>
-                <a href="/login" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Se connecter</a>
-                <button onclick="openOnboarding()" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors">Démarrer</button>
+                <a href="/" class="text-sm font-medium text-brand-500 transition-colors" data-i18n="nav.home">Home</a>
+                <a href="/products" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.product">Product</a>
+                <a href="/offers" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.offers">Offers</a>
+                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.blog">Blog</a>
+                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.reviews">Reviews</a>
+                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.support">Support</a>
+                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.tutorials">Tutorials</a>
+                <div class="lang-switcher" id="lang-switcher">
+                    <button onclick="document.getElementById('lang-switcher').classList.toggle('open')">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
+                        <span id="lang-current">EN</span>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown"></div>
+                </div>
+                <a href="/login" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors" data-i18n="nav.signin">Sign in</a>
             </div>
             <button id="mobile-menu-btn" class="md:hidden p-2" aria-label="Menu">
                 <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </div>
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
-            <a href="#features" class="block text-sm text-gray-600 py-2">Features</a>
-            <a href="#pricing" class="block text-sm text-gray-600 py-2">Pricing</a>
-            <a href="/blog" class="block text-sm text-gray-600 py-2">Blog</a>
-            <a href="/reviews" class="block text-sm text-gray-600 py-2">Avis</a>
-            <a href="/support" class="block text-sm text-gray-600 py-2">Support</a>
-            <a href="/login" class="block text-sm text-gray-600 py-2">Se connecter</a>
-            <button onclick="openOnboarding()" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5">Démarrer</button>
+            <a href="/" class="block text-sm font-medium text-brand-500 py-2" data-i18n="nav.home">Home</a>
+            <a href="/products" class="block text-sm text-gray-600 py-2" data-i18n="nav.product">Product</a>
+            <a href="/offers" class="block text-sm text-gray-600 py-2" data-i18n="nav.offers">Offers</a>
+            <a href="/blog" class="block text-sm text-gray-600 py-2" data-i18n="nav.blog">Blog</a>
+            <a href="/reviews" class="block text-sm text-gray-600 py-2" data-i18n="nav.reviews">Reviews</a>
+            <a href="/support" class="block text-sm text-gray-600 py-2" data-i18n="nav.support">Support</a>
+            <a href="/tutorials" class="block text-sm text-gray-600 py-2" data-i18n="nav.tutorials">Tutorials</a>
+            <div id="mobile-lang-switcher" class="flex flex-wrap gap-2 py-2"></div>
+            <a href="/login" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5" data-i18n="nav.signin">Sign in</a>
         </div>
     </nav>
 
@@ -142,32 +160,6 @@
         </div>
     </section>
 
-    <!-- PRICING -->
-    <section id="pricing" class="py-20 px-6 bg-gradient-to-b from-white via-brand-50 to-white">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-14">
-                <h2 id="pricing-heading" class="text-3xl font-bold text-gray-900"></h2>
-                <p id="pricing-subheading" class="mt-3 text-gray-500"></p>
-            </div>
-
-            <!-- License selector -->
-            <div class="flex items-center justify-center gap-3 mb-10">
-                <span class="text-sm text-gray-500">Licenses:</span>
-                <div class="inline-flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                    <button onclick="adjustLicenses(-1)" class="px-3 py-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-lg font-medium transition-colors">-</button>
-                    <input id="license-count" type="number" value="5" min="1" max="1000" class="w-16 text-center font-semibold text-gray-900 border-x border-gray-200 py-2 focus:outline-none text-sm" onchange="updatePrices()">
-                    <button onclick="adjustLicenses(1)" class="px-3 py-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-lg font-medium transition-colors">+</button>
-                </div>
-                <span class="text-sm text-gray-400">users</span>
-            </div>
-
-            <!-- Cards -->
-            <div id="pricing-grid" class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto"></div>
-
-            <p class="text-center text-xs text-gray-400 mt-8">Secure payments via Stripe. Cancel anytime.</p>
-        </div>
-    </section>
-
     <!-- TRUST -->
     <section class="py-16 px-6 bg-gray-50">
         <div id="trust-grid" class="max-w-4xl mx-auto grid sm:grid-cols-4 gap-6 text-center"></div>
@@ -184,9 +176,9 @@
     <!-- CTA -->
     <section class="py-16 px-6 bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-500">
         <div class="max-w-2xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-white">Ready to get started?</h2>
-            <p class="mt-2 text-blue-100 text-sm">Join thousands of enterprises using Rainbow. Start free today.</p>
-            <a href="#pricing" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors">
+            <h2 class="text-2xl font-bold text-white" data-i18n="home.ctaTitle">Ready to get started?</h2>
+            <p class="mt-2 text-blue-100 text-sm" data-i18n="home.ctaDescription">Join thousands of enterprises using Rainbow. Start free today.</p>
+            <a href="/offers" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors" data-i18n="home.ctaBtn">
                 View Plans
             </a>
         </div>
@@ -197,35 +189,35 @@
         <div class="max-w-5xl mx-auto">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                 <div>
-                    <h4 class="text-sm font-semibold text-gray-900 mb-3">Produit</h4>
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3" data-i18n="footer.product">Product</h4>
                     <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#features" class="hover:text-gray-900">Fonctionnalités</a></li>
-                        <li><a href="#pricing" class="hover:text-gray-900">Tarifs</a></li>
-                        <li><a href="/product/rainbow" class="hover:text-gray-900">Détails produit</a></li>
-                        <li><a href="/reviews" class="hover:text-gray-900">Avis clients</a></li>
+                        <li><a href="#features" class="hover:text-gray-900" data-i18n="footer.features">Features</a></li>
+                        <li><a href="/offers" class="hover:text-gray-900" data-i18n="footer.pricing">Pricing</a></li>
+                        <li><a href="/products" class="hover:text-gray-900" data-i18n="footer.productDetails">Product Details</a></li>
+                        <li><a href="/reviews" class="hover:text-gray-900" data-i18n="nav.reviews">Reviews</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-gray-900 mb-3">Ressources</h4>
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3" data-i18n="footer.resources">Resources</h4>
                     <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="/blog" class="hover:text-gray-900">Blog</a></li>
-                        <li><a href="/tutorials" class="hover:text-gray-900">Tutoriels</a></li>
-                        <li><a href="#demo" class="hover:text-gray-900">Démo vidéo</a></li>
+                        <li><a href="/blog" class="hover:text-gray-900" data-i18n="nav.blog">Blog</a></li>
+                        <li><a href="/tutorials" class="hover:text-gray-900" data-i18n="nav.tutorials">Tutorials</a></li>
+                        <li><a href="#demo" class="hover:text-gray-900" data-i18n="footer.videoDemo">Video Demo</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-gray-900 mb-3">Support</h4>
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3" data-i18n="footer.support">Support</h4>
                     <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="/support" class="hover:text-gray-900">Centre d'aide</a></li>
-                        <li><a href="/support#contact" class="hover:text-gray-900">Contact</a></li>
-                        <li><a href="#faq" class="hover:text-gray-900">FAQ</a></li>
+                        <li><a href="/support" class="hover:text-gray-900" data-i18n="footer.helpCenter">Help Center</a></li>
+                        <li><a href="/support#contact" class="hover:text-gray-900" data-i18n="footer.contact">Contact</a></li>
+                        <li><a href="#faq" class="hover:text-gray-900" data-i18n="footer.faq">FAQ</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-gray-900 mb-3">Espace</h4>
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3" data-i18n="footer.account">Account</h4>
                     <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="/login" class="hover:text-gray-900">Espace client</a></li>
-                        <li><a href="/admin" class="hover:text-gray-900">Administration</a></li>
+                        <li><a href="/login" class="hover:text-gray-900" data-i18n="footer.clientPortal">Client Portal</a></li>
+                        <li><a href="/admin" class="hover:text-gray-900" data-i18n="footer.admin">Admin</a></li>
                     </ul>
                 </div>
             </div>
@@ -233,12 +225,12 @@
                 <div class="flex items-center gap-3">
                     <img src="images/ale-logo.png" alt="Alcatel-Lucent Enterprise" class="h-5 w-auto opacity-50">
                     <span class="text-gray-300">|</span>
-                    <span class="text-sm text-gray-400">Rainbow &copy; 2024. Tous droits réservés.</span>
+                    <span class="text-sm text-gray-400">Rainbow &copy; 2024. All rights reserved.</span>
                 </div>
                 <div class="flex gap-6 text-xs text-gray-400">
-                    <a href="https://www.al-enterprise.com/en/rainbow" target="_blank" class="hover:text-gray-600">À propos</a>
-                    <a href="#" class="hover:text-gray-600">Confidentialité</a>
-                    <a href="#" class="hover:text-gray-600">CGV</a>
+                    <a href="https://www.al-enterprise.com/en/rainbow" target="_blank" class="hover:text-gray-600">About</a>
+                    <a href="#" class="hover:text-gray-600">Privacy</a>
+                    <a href="#" class="hover:text-gray-600">Terms</a>
                 </div>
             </div>
         </div>
@@ -264,44 +256,45 @@
                 <button onclick="closeCheckout()" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" aria-label="Close">
                     <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <h3 class="text-lg font-bold text-gray-900 mb-1">Subscribe</h3>
+                <h3 class="text-lg font-bold text-gray-900 mb-1" data-i18n="checkout.title">Subscribe</h3>
                 <p class="text-xs text-gray-500 mb-5" id="checkout-summary"></p>
                 <div class="bg-gray-50 rounded-lg p-4 mb-5 space-y-2 text-sm">
-                    <div class="flex justify-between"><span class="text-gray-400">Plan</span><span class="font-medium text-gray-900" id="checkout-plan-name"></span></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Licenses</span><span class="font-medium text-gray-900" id="checkout-licenses"></span></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Per user</span><span class="font-medium text-gray-900" id="checkout-unit-price"></span></div>
-                    <div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900">Monthly total</span><span class="font-bold text-brand-600" id="checkout-total"></span></div>
+                    <div class="flex justify-between"><span class="text-gray-400" data-i18n="checkout.plan">Plan</span><span class="font-medium text-gray-900" id="checkout-plan-name"></span></div>
+                    <div class="flex justify-between"><span class="text-gray-400" data-i18n="checkout.licenses">Licenses</span><span class="font-medium text-gray-900" id="checkout-licenses"></span></div>
+                    <div class="flex justify-between"><span class="text-gray-400" data-i18n="checkout.perUser">Per user</span><span class="font-medium text-gray-900" id="checkout-unit-price"></span></div>
+                    <div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900" data-i18n="checkout.monthlyTotal">Monthly total</span><span class="font-bold text-brand-600" id="checkout-total"></span></div>
                 </div>
                 <div class="mb-3">
-                    <label for="checkout-email" class="block text-xs font-medium text-gray-600 mb-1">Email</label>
-                    <input type="email" id="checkout-email" placeholder="you@company.com" class="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">
+                    <label for="checkout-email" class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.emailLabel">Email</label>
+                    <input type="email" id="checkout-email" placeholder="you@company.com" data-i18n-placeholder="checkout.emailPlaceholder" class="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">
                 </div>
                 <div class="mb-3">
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Card number</label>
+                    <label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.cardNumber">Card number</label>
                     <div id="card-number-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Expiry</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.expiry">Expiry</label>
                         <div id="card-expiry-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">CVC</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.cvc">CVC</label>
                         <div id="card-cvc-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>
                     </div>
                 </div>
                 <div class="mb-5">
                     <p id="card-errors" class="text-red-500 text-xs hidden"></p>
                 </div>
-                <button id="checkout-submit" onclick="handlePayment()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors">
+                <button id="checkout-submit" onclick="handlePayment()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors" data-i18n="checkout.submitBtn">
                     Subscribe & Pay
                 </button>
-                <p class="text-[11px] text-gray-400 text-center mt-3">Secured by Stripe. Card data never touches our servers.</p>
+                <p class="text-[11px] text-gray-400 text-center mt-3" data-i18n="checkout.stripeNote">Secured by Stripe. Card data never touches our servers.</p>
             </div>
         </div>
     </div>
 
     <script src="https://js.stripe.com/v3/"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/main.js"></script>
     <script src="js/onboarding.js"></script>
 </body>

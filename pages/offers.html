@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offers - Rainbow by Alcatel-Lucent Enterprise</title>
+    <meta name="description" content="Simple, transparent pricing for Rainbow cloud communication. Choose the plan that fits your team — Essential, Business, or Enterprise.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eef4ff', 100: '#dce8ff', 500: '#4F6DF5', 600: '#3B5DE7', 700: '#2D4ED9' }
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    .lang-switcher { position: relative; }
+    .lang-switcher button { display: flex; align-items: center; gap: 4px; font-size: 0.8125rem; color: #64748b; cursor: pointer; background: none; border: none; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
+    .lang-switcher button:hover { color: #0f172a; }
+    .lang-switcher .lang-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 140px; z-index: 200; padding: 4px 0; margin-top: 4px; }
+    .lang-switcher.open .lang-dropdown { display: block; }
+    .lang-dropdown button { display: block; width: 100%; text-align: left; padding: 8px 14px; font-size: 0.8125rem; color: #374151; border: none; background: none; cursor: pointer; }
+    .lang-dropdown button:hover { background: #f1f5f9; }
+    .lang-dropdown button.active { color: #4F6DF5; font-weight: 600; }
+</style>
+</head>
+<body class="font-sans text-gray-700 antialiased bg-white">
+
+    <!-- NAV -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+            <a href="/" class="flex items-center gap-2">
+                <img src="/img/rainbow-logo.png" alt="Rainbow" class="w-8 h-8 rounded-lg">
+                <span class="text-lg font-bold text-gray-900">Rainbow</span>
+            </a>
+            <div class="hidden md:flex items-center gap-6">
+                <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.home">Home</a>
+                <a href="/products" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.product">Product</a>
+                <a href="/offers" class="text-sm font-medium text-brand-500 transition-colors" data-i18n="nav.offers">Offers</a>
+                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.blog">Blog</a>
+                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.reviews">Reviews</a>
+                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.support">Support</a>
+                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.tutorials">Tutorials</a>
+                <div class="lang-switcher" id="lang-switcher">
+                    <button onclick="document.getElementById('lang-switcher').classList.toggle('open')">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
+                        <span id="lang-current">EN</span>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown"></div>
+                </div>
+                <a href="/login" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors" data-i18n="nav.signin">Sign in</a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden p-2" aria-label="Menu">
+                <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
+            <a href="/" class="block text-sm text-gray-600 py-2" data-i18n="nav.home">Home</a>
+            <a href="/products" class="block text-sm text-gray-600 py-2" data-i18n="nav.product">Product</a>
+            <a href="/offers" class="block text-sm font-medium text-brand-500 py-2" data-i18n="nav.offers">Offers</a>
+            <a href="/blog" class="block text-sm text-gray-600 py-2" data-i18n="nav.blog">Blog</a>
+            <a href="/reviews" class="block text-sm text-gray-600 py-2" data-i18n="nav.reviews">Reviews</a>
+            <a href="/support" class="block text-sm text-gray-600 py-2" data-i18n="nav.support">Support</a>
+            <a href="/tutorials" class="block text-sm text-gray-600 py-2" data-i18n="nav.tutorials">Tutorials</a>
+            <div id="mobile-lang-switcher" class="flex flex-wrap gap-2 py-2"></div>
+            <a href="/login" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5" data-i18n="nav.signin">Sign in</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="pt-28 pb-16 px-6 bg-gradient-to-br from-brand-100 via-white to-white">
+        <div class="max-w-5xl mx-auto text-center">
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-4" data-i18n="nav.offers">Offers</span>
+            <h1 id="pricing-heading" class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight"></h1>
+            <p id="pricing-subheading" class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto"></p>
+        </div>
+    </header>
+
+    <!-- PRICING -->
+    <section class="px-6 pb-20 -mt-4">
+        <div class="max-w-5xl mx-auto">
+            <!-- License selector -->
+            <div class="flex items-center justify-center gap-3 mb-10">
+                <span class="text-sm text-gray-500" data-i18n="home.licensesLabel">Licenses:</span>
+                <div class="inline-flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                    <button onclick="adjustLicenses(-1)" class="px-3 py-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-lg font-medium transition-colors">-</button>
+                    <input id="license-count" type="number" value="5" min="1" max="1000" class="w-16 text-center font-semibold text-gray-900 border-x border-gray-200 py-2 focus:outline-none text-sm" onchange="updatePrices()">
+                    <button onclick="adjustLicenses(1)" class="px-3 py-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-lg font-medium transition-colors">+</button>
+                </div>
+                <span class="text-sm text-gray-400" data-i18n="home.usersLabel">users</span>
+            </div>
+
+            <!-- Cards -->
+            <div id="pricing-grid" class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <!-- Loading state -->
+                <div class="col-span-full text-center py-12">
+                    <div class="inline-block w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="mt-3 text-gray-400 text-sm">Loading plans...</p>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-gray-400 mt-8" data-i18n="home.stripeNote">Secure payments via Stripe. Cancel anytime.</p>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 px-6 bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-500">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2 class="text-2xl font-bold text-white" data-i18n="home.ctaTitle">Ready to get started?</h2>
+            <p class="mt-2 text-blue-100 text-sm" data-i18n="home.ctaDescription">Join thousands of enterprises using Rainbow. Start free today.</p>
+            <a href="/login" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors" data-i18n="nav.signin">
+                Sign in
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 pt-16 pb-8 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+                <div>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.product">Product</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/products" class="hover:text-white transition-colors" data-i18n="footer.rainbow">Rainbow</a></li>
+                        <li><a href="/#features" class="hover:text-white transition-colors" data-i18n="footer.features">Features</a></li>
+                        <li><a href="/offers" class="hover:text-white transition-colors" data-i18n="footer.pricing">Pricing</a></li>
+                        <li><a href="/#demo" class="hover:text-white transition-colors" data-i18n="footer.demo">Demo</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.resources">Resources</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/blog" class="hover:text-white transition-colors" data-i18n="footer.blog">Blog</a></li>
+                        <li><a href="/tutorials" class="hover:text-white transition-colors" data-i18n="footer.tutorials">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.apiDocs">API Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.changelog">Changelog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.support">Support</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/support" class="hover:text-white transition-colors" data-i18n="footer.helpCenter">Help Center</a></li>
+                        <li><a href="/support" class="hover:text-white transition-colors" data-i18n="footer.contactUs">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.serviceStatus">Service Status</a></li>
+                        <li><a href="/reviews" class="hover:text-white transition-colors" data-i18n="footer.customerReviews">Customer Reviews</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.company">Company</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.about">About</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.careers">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.legalNotice">Legal Notice</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.privacyPolicy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500" data-i18n-html="footer.copyright">
+                &copy; 2026 Rainbow by Alcatel-Lucent Enterprise. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/i18n.js"></script>
+    <script>
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(e) {
+            var sw = document.getElementById('lang-switcher');
+            if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+        });
+
+        function t(k, f) { return typeof i18n !== 'undefined' ? i18n.t(k, f) : f; }
+
+        function escapeHtml(s) {
+            var div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        // --- Pricing state ---
+        var PLANS = {};
+
+        function getLicenseCount() {
+            var input = document.getElementById('license-count');
+            var val = parseInt(input.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > 1000) val = 1000;
+            input.value = val;
+            return val;
+        }
+
+        function adjustLicenses(delta) {
+            var input = document.getElementById('license-count');
+            var val = parseInt(input.value, 10) + delta;
+            if (val < 1) val = 1;
+            if (val > 1000) val = 1000;
+            input.value = val;
+            updatePrices();
+        }
+
+        function updatePrices() {
+            var count = getLicenseCount();
+            var suffix = t('home.perMonthTotal', '/mo total');
+            Object.keys(PLANS).forEach(function(key) {
+                var plan = PLANS[key];
+                if (plan.pricePerUser > 0) {
+                    var el = document.getElementById(key + '-total');
+                    if (el) el.textContent = '\u20AC' + (plan.pricePerUser * count).toFixed(2) + suffix;
+                }
+            });
+        }
+
+        function checkout(planKey) {
+            var count = getLicenseCount();
+            window.location.href = '/login?plan=' + encodeURIComponent(planKey) + '&licenses=' + count;
+        }
+
+        function renderPricing(pricing) {
+            document.getElementById('pricing-heading').textContent = pricing.heading;
+            document.getElementById('pricing-subheading').textContent = pricing.subheading;
+
+            PLANS = {};
+            var grid = document.getElementById('pricing-grid');
+            grid.innerHTML = '';
+
+            var checkSvg = '<svg class="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+
+            pricing.plans.forEach(function(p) {
+                var planKey = p.name.toLowerCase().replace(/\s+/g, '-');
+                PLANS[planKey] = { name: p.name, pricePerUser: p.pricePerUser };
+
+                var card = document.createElement('div');
+                var borderClass = p.highlighted ? 'border-2 border-brand-500 relative' : 'border border-gray-200';
+                card.className = 'rounded-xl ' + borderClass + ' p-7 bg-white';
+
+                var badgeHtml = (p.highlighted && p.badge) ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-brand-500 text-white text-xs font-medium rounded-full">' + escapeHtml(p.badge) + '</span>' : '';
+
+                var priceHtml;
+                if (p.pricePerUser === 0) {
+                    priceHtml = '<p class="text-4xl font-bold text-gray-900 mb-1">' + escapeHtml(p.price) + '</p>';
+                } else {
+                    priceHtml =
+                        '<div class="flex items-baseline gap-0.5 mb-1">' +
+                            '<span class="text-sm text-gray-400">&euro;</span>' +
+                            '<span class="text-4xl font-bold text-gray-900">' + escapeHtml(p.price) + '</span>' +
+                        '</div>';
+                }
+
+                var totalHtml = '';
+                if (p.pricePerUser > 0) {
+                    totalHtml = '<p class="text-xs text-brand-600 font-medium mb-6" id="' + planKey + '-total"></p>';
+                }
+
+                var ctaHtml;
+                if (p.pricePerUser === 0 && !p.ctaLink) {
+                    ctaHtml = '<button onclick="checkout(\'' + planKey + '\')" class="w-full py-2.5 rounded-lg border border-brand-500 text-brand-600 text-sm font-medium hover:bg-blue-50 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
+                } else if (p.ctaLink) {
+                    ctaHtml = '<a href="' + p.ctaLink + '" target="_blank" class="block text-center py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-brand-500 hover:text-brand-600 transition-colors">' + escapeHtml(p.ctaText) + '</a>';
+                } else if (p.highlighted) {
+                    ctaHtml = '<button onclick="checkout(\'' + planKey + '\')" class="w-full py-2.5 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
+                } else {
+                    ctaHtml = '<button onclick="checkout(\'' + planKey + '\')" class="w-full py-2.5 rounded-lg border border-brand-500 text-brand-600 text-sm font-medium hover:bg-blue-50 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
+                }
+
+                var featuresHtml = p.features.map(function(feat) {
+                    return '<li class="flex items-center gap-2">' + checkSvg + ' ' + escapeHtml(feat) + '</li>';
+                }).join('');
+
+                card.innerHTML = badgeHtml +
+                    '<h3 class="font-semibold text-gray-900">' + escapeHtml(p.name) + '</h3>' +
+                    '<p class="text-xs text-gray-400 mt-1 mb-5">' + escapeHtml(p.subtitle) + '</p>' +
+                    priceHtml +
+                    '<p class="text-xs text-gray-400 mb-1">' + escapeHtml(p.priceNote) + '</p>' +
+                    totalHtml +
+                    ctaHtml +
+                    '<ul class="mt-6 space-y-2.5 text-sm text-gray-500">' + featuresHtml + '</ul>';
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Load content and render pricing
+        function loadOffers() {
+            var lang = window.i18n ? i18n.getLang() : 'en';
+            var url = '/api/content' + (lang !== 'en' ? '?lang=' + lang : '');
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.pricing) {
+                        renderPricing(data.pricing);
+                        updatePrices();
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Failed to load pricing:', err);
+                    document.getElementById('pricing-grid').innerHTML = '<div class="col-span-full text-center py-12"><p class="text-red-400">Failed to load plans.</p></div>';
+                });
+        }
+
+        loadOffers();
+        window.addEventListener('langchange', function() { loadOffers(); });
+    </script>
+</body>
+</html>

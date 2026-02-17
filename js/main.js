@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', function () {
     initStripe();
 });
 
+// Listen for language changes → reload content
+window.addEventListener('langchange', function () {
+    loadContent();
+});
+
 // Initialize Stripe Elements
 function initStripe() {
     fetch('/api/stripe-key')
@@ -56,9 +61,11 @@ function initStripe() {
         });
 }
 
-// Load content from API and render
+// Load content from API and render (with lang param)
 function loadContent() {
-    fetch('/api/content')
+    var lang = window.i18n ? i18n.getLang() : 'en';
+    var url = '/api/content' + (lang !== 'en' ? '?lang=' + lang : '');
+    fetch(url)
         .then(function (r) { return r.json(); })
         .then(function (data) {
             renderHero(data.hero);
@@ -74,6 +81,11 @@ function loadContent() {
         .catch(function (err) {
             console.error('Failed to load content:', err);
         });
+}
+
+// Helper: get i18n string or fallback
+function t(key, fallback) {
+    return window.i18n ? i18n.t(key, fallback) : (fallback || key);
 }
 
 // --- Renderers ---
@@ -159,12 +171,14 @@ function renderScreenshots(screenshots) {
 }
 
 function renderPricing(pricing) {
+    var grid = document.getElementById('pricing-grid');
+    if (!grid) return; // pricing section not on this page
+
     document.getElementById('pricing-heading').textContent = pricing.heading;
     document.getElementById('pricing-subheading').textContent = pricing.subheading;
 
     // Store plans globally for checkout
     window.PLANS = {};
-    var grid = document.getElementById('pricing-grid');
     grid.innerHTML = '';
 
     var checkSvg = '<svg class="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
@@ -197,7 +211,7 @@ function renderPricing(pricing) {
 
         var ctaHtml;
         if (p.pricePerUser === 0 && !p.ctaLink) {
-            ctaHtml = '<button onclick="openOnboarding()" class="w-full py-2.5 rounded-lg border border-brand-500 text-brand-600 text-sm font-medium hover:bg-blue-50 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
+            ctaHtml = '<button onclick="checkout(\'' + planKey + '\')" class="w-full py-2.5 rounded-lg border border-brand-500 text-brand-600 text-sm font-medium hover:bg-blue-50 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
         } else if (p.ctaLink) {
             ctaHtml = '<a href="' + p.ctaLink + '" target="_blank" class="block text-center py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-brand-500 hover:text-brand-600 transition-colors">' + escapeHtml(p.ctaText) + '</a>';
         } else if (p.highlighted) {
@@ -303,13 +317,14 @@ function adjustLicenses(delta) {
 }
 
 function updatePrices() {
-    if (!window.PLANS) return;
+    if (!window.PLANS || !document.getElementById('license-count')) return;
     var count = getLicenseCount();
+    var suffix = t('home.perMonthTotal', '/mo total');
     Object.keys(window.PLANS).forEach(function (key) {
         var plan = window.PLANS[key];
         if (plan.pricePerUser > 0) {
             var el = document.getElementById(key + '-total');
-            if (el) el.textContent = '\u20AC' + (plan.pricePerUser * count).toFixed(2) + '/mo total';
+            if (el) el.textContent = '\u20AC' + (plan.pricePerUser * count).toFixed(2) + suffix;
         }
     });
 }
@@ -318,21 +333,9 @@ function updatePrices() {
 var selectedPlan = null;
 
 function checkout(planKey) {
-    selectedPlan = window.PLANS[planKey];
-    if (!selectedPlan) return;
+    // Redirect to login/register with plan params instead of opening checkout modal
     var count = getLicenseCount();
-    var total = (selectedPlan.pricePerUser * count).toFixed(2);
-
-    document.getElementById('checkout-plan-name').textContent = selectedPlan.name;
-    document.getElementById('checkout-licenses').textContent = count + ' user' + (count > 1 ? 's' : '');
-    document.getElementById('checkout-unit-price').textContent = '\u20AC' + selectedPlan.pricePerUser.toFixed(2) + '/mo';
-    document.getElementById('checkout-total').textContent = '\u20AC' + total + '/mo';
-    document.getElementById('checkout-summary').textContent = selectedPlan.name + ' \u2014 ' + count + ' license' + (count > 1 ? 's' : '');
-
-    var modal = document.getElementById('checkout-modal');
-    modal.classList.remove('hidden');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    window.location.href = '/login?plan=' + encodeURIComponent(planKey) + '&licenses=' + count;
 }
 
 function closeCheckout() {
@@ -348,24 +351,24 @@ document.addEventListener('keydown', function (e) { if (e.key === 'Escape') clos
 function handlePayment() {
     var email = document.getElementById('checkout-email').value.trim();
     if (!email || !email.includes('@')) {
-        showCardError('Please enter a valid email address.');
+        showCardError(t('checkout.invalidEmail', 'Please enter a valid email address.'));
         return;
     }
     if (!stripeInstance || !cardNumberElement) {
-        showCardError('Payment system not ready. Please refresh and try again.');
+        showCardError(t('checkout.notReady', 'Payment system not ready. Please refresh and try again.'));
         return;
     }
 
     var count = getLicenseCount();
     var planKey = selectedPlan ? Object.keys(window.PLANS).find(function (k) { return window.PLANS[k] === selectedPlan; }) : null;
     if (!planKey) {
-        showCardError('No plan selected.');
+        showCardError(t('checkout.noPlan', 'No plan selected.'));
         return;
     }
 
     var btn = document.getElementById('checkout-submit');
     btn.disabled = true;
-    btn.textContent = 'Processing\u2026';
+    btn.textContent = t('checkout.processing', 'Processing\u2026');
 
     // 1. Create subscription on the server
     fetch('/api/create-subscription', {
@@ -394,7 +397,7 @@ function handlePayment() {
         showPaymentSuccess(email, count);
     })
     .catch(function (err) {
-        showCardError(err.message || 'Payment failed. Please try again.');
+        showCardError(err.message || t('checkout.paymentFailed', 'Payment failed. Please try again.'));
         resetBtn();
     });
 }
@@ -408,15 +411,15 @@ function showPaymentSuccess(email, licenseCount) {
             '<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">' +
                 '<svg class="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' +
             '</div>' +
-            '<h3 class="text-xl font-bold text-gray-900 mb-1">Subscription active!</h3>' +
-            '<p class="text-sm text-gray-500 mb-6">Your payment was processed successfully.</p>' +
+            '<h3 class="text-xl font-bold text-gray-900 mb-1">' + t('checkout.successTitle', 'Subscription active!') + '</h3>' +
+            '<p class="text-sm text-gray-500 mb-6">' + t('checkout.successDescription', 'Your payment was processed successfully.') + '</p>' +
             '<div class="bg-gray-50 rounded-lg p-4 mb-6 space-y-2 text-sm text-left">' +
-                '<div class="flex justify-between"><span class="text-gray-400">Plan</span><span class="font-medium text-gray-900">' + escapeHtml(selectedPlan.name) + '</span></div>' +
-                '<div class="flex justify-between"><span class="text-gray-400">Licenses</span><span class="font-medium text-gray-900">' + licenseCount + ' user' + (licenseCount > 1 ? 's' : '') + '</span></div>' +
-                '<div class="flex justify-between"><span class="text-gray-400">Email</span><span class="font-medium text-gray-900">' + escapeHtml(email) + '</span></div>' +
-                '<div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900">Monthly total</span><span class="font-bold text-green-600">\u20AC' + total + '/mo</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-400">' + t('checkout.plan', 'Plan') + '</span><span class="font-medium text-gray-900">' + escapeHtml(selectedPlan.name) + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-400">' + t('checkout.licenses', 'Licenses') + '</span><span class="font-medium text-gray-900">' + licenseCount + ' user' + (licenseCount > 1 ? 's' : '') + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-400">' + t('checkout.emailLabel', 'Email') + '</span><span class="font-medium text-gray-900">' + escapeHtml(email) + '</span></div>' +
+                '<div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900">' + t('checkout.monthlyTotal', 'Monthly total') + '</span><span class="font-bold text-green-600">\u20AC' + total + '/mo</span></div>' +
             '</div>' +
-            '<button onclick="closeCheckoutAndReset()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors">Close</button>' +
+            '<button onclick="closeCheckoutAndReset()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors">' + t('checkout.close', 'Close') + '</button>' +
         '</div>';
 }
 
@@ -429,37 +432,37 @@ function closeCheckoutAndReset() {
         '<button onclick="closeCheckout()" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" aria-label="Close">' +
             '<svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
         '</button>' +
-        '<h3 class="text-lg font-bold text-gray-900 mb-1">Subscribe</h3>' +
+        '<h3 class="text-lg font-bold text-gray-900 mb-1" data-i18n="checkout.title">' + t('checkout.title', 'Subscribe') + '</h3>' +
         '<p class="text-xs text-gray-500 mb-5" id="checkout-summary"></p>' +
         '<div class="bg-gray-50 rounded-lg p-4 mb-5 space-y-2 text-sm">' +
-            '<div class="flex justify-between"><span class="text-gray-400">Plan</span><span class="font-medium text-gray-900" id="checkout-plan-name"></span></div>' +
-            '<div class="flex justify-between"><span class="text-gray-400">Licenses</span><span class="font-medium text-gray-900" id="checkout-licenses"></span></div>' +
-            '<div class="flex justify-between"><span class="text-gray-400">Per user</span><span class="font-medium text-gray-900" id="checkout-unit-price"></span></div>' +
-            '<div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900">Monthly total</span><span class="font-bold text-brand-600" id="checkout-total"></span></div>' +
+            '<div class="flex justify-between"><span class="text-gray-400" data-i18n="checkout.plan">' + t('checkout.plan', 'Plan') + '</span><span class="font-medium text-gray-900" id="checkout-plan-name"></span></div>' +
+            '<div class="flex justify-between"><span class="text-gray-400" data-i18n="checkout.licenses">' + t('checkout.licenses', 'Licenses') + '</span><span class="font-medium text-gray-900" id="checkout-licenses"></span></div>' +
+            '<div class="flex justify-between"><span class="text-gray-400" data-i18n="checkout.perUser">' + t('checkout.perUser', 'Per user') + '</span><span class="font-medium text-gray-900" id="checkout-unit-price"></span></div>' +
+            '<div class="border-t border-gray-200 pt-2 flex justify-between"><span class="font-semibold text-gray-900" data-i18n="checkout.monthlyTotal">' + t('checkout.monthlyTotal', 'Monthly total') + '</span><span class="font-bold text-brand-600" id="checkout-total"></span></div>' +
         '</div>' +
         '<div class="mb-3">' +
-            '<label for="checkout-email" class="block text-xs font-medium text-gray-600 mb-1">Email</label>' +
-            '<input type="email" id="checkout-email" placeholder="you@company.com" class="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">' +
+            '<label for="checkout-email" class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.emailLabel">' + t('checkout.emailLabel', 'Email') + '</label>' +
+            '<input type="email" id="checkout-email" placeholder="you@company.com" data-i18n-placeholder="checkout.emailPlaceholder" class="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">' +
         '</div>' +
         '<div class="mb-3">' +
-            '<label class="block text-xs font-medium text-gray-600 mb-1">Card number</label>' +
+            '<label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.cardNumber">' + t('checkout.cardNumber', 'Card number') + '</label>' +
             '<div id="card-number-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>' +
         '</div>' +
         '<div class="grid grid-cols-2 gap-3 mb-3">' +
             '<div>' +
-                '<label class="block text-xs font-medium text-gray-600 mb-1">Expiry</label>' +
+                '<label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.expiry">' + t('checkout.expiry', 'Expiry') + '</label>' +
                 '<div id="card-expiry-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>' +
             '</div>' +
             '<div>' +
-                '<label class="block text-xs font-medium text-gray-600 mb-1">CVC</label>' +
+                '<label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="checkout.cvc">' + t('checkout.cvc', 'CVC') + '</label>' +
                 '<div id="card-cvc-element" class="px-3 py-2.5 rounded-lg border border-gray-200 text-sm" style="min-height:40px"></div>' +
             '</div>' +
         '</div>' +
         '<div class="mb-5">' +
             '<p id="card-errors" class="text-red-500 text-xs hidden"></p>' +
         '</div>' +
-        '<button id="checkout-submit" onclick="handlePayment()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors">Subscribe & Pay</button>' +
-        '<p class="text-[11px] text-gray-400 text-center mt-3">Secured by Stripe. Card data never touches our servers.</p>';
+        '<button id="checkout-submit" onclick="handlePayment()" class="w-full py-3 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 transition-colors" data-i18n="checkout.submitBtn">' + t('checkout.submitBtn', 'Subscribe & Pay') + '</button>' +
+        '<p class="text-[11px] text-gray-400 text-center mt-3" data-i18n="checkout.stripeNote">' + t('checkout.stripeNote', 'Secured by Stripe. Card data never touches our servers.') + '</p>';
 
     // Re-mount Stripe card elements
     if (cardNumberElement) {
@@ -472,7 +475,7 @@ function closeCheckoutAndReset() {
 function resetBtn() {
     var btn = document.getElementById('checkout-submit');
     btn.disabled = false;
-    btn.textContent = 'Subscribe & Pay';
+    btn.textContent = t('checkout.submitBtn', 'Subscribe & Pay');
     btn.classList.remove('bg-green-500');
     btn.classList.add('bg-brand-500', 'hover:bg-brand-600');
 }

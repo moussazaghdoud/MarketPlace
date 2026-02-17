@@ -2,6 +2,8 @@ const { getDb } = require('./connection');
 const { createTables } = require('./schema');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const path = require('path');
 
 function seed() {
     createTables();
@@ -111,6 +113,56 @@ function seed() {
         console.log('Default Rainbow product seeded');
     }
 
+    // Seed Rainbow Webinar product
+    const existingWebinar = db.prepare('SELECT id FROM products WHERE slug = ?').get('webinar');
+    if (!existingWebinar) {
+        db.prepare(`
+            INSERT INTO products (id, name, slug, shortDescription, fullDescription, benefits, gallery, plans)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            uuidv4(),
+            'Rainbow Webinar',
+            'webinar',
+            'Professional webinar platform for hosting large-scale online events with up to 10,000 participants.',
+            'Rainbow Webinar by Alcatel-Lucent Enterprise is a professional webinar solution for hosting large-scale online events, product demos, training sessions, and town halls with interactive Q&A, polls, and analytics.',
+            JSON.stringify([
+                'Up to 10,000 participants',
+                'Interactive Q&A and polls',
+                'HD video streaming',
+                'Recording and replay',
+                'Advanced analytics and reporting'
+            ]),
+            JSON.stringify([]),
+            JSON.stringify({})
+        );
+        console.log('Rainbow Webinar product seeded');
+    }
+
+    // Seed Rainbow Smart Hotel product
+    const existingHotel = db.prepare('SELECT id FROM products WHERE slug = ?').get('smart-hotel');
+    if (!existingHotel) {
+        db.prepare(`
+            INSERT INTO products (id, name, slug, shortDescription, fullDescription, benefits, gallery, plans)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            uuidv4(),
+            'Rainbow Smart Hotel',
+            'smart-hotel',
+            'AI-powered guest experience platform with voice concierge and seamless hotel operations.',
+            'Rainbow Smart Hotel by Alcatel-Lucent Enterprise is an AI-powered hospitality solution featuring voice concierge, room service management, real-time staff communication, and seamless integration with hotel property management systems.',
+            JSON.stringify([
+                'AI voice concierge',
+                'Room service management',
+                'Real-time staff communication',
+                'Guest experience analytics',
+                'PMS integration'
+            ]),
+            JSON.stringify([]),
+            JSON.stringify({})
+        );
+        console.log('Rainbow Smart Hotel product seeded');
+    }
+
     // Seed default blog categories
     const existingCat = db.prepare('SELECT id FROM blog_categories LIMIT 1').get();
     if (!existingCat) {
@@ -125,6 +177,29 @@ function seed() {
             stmt.run(uuidv4(), cat.name, cat.slug);
         }
         console.log('Default blog categories seeded');
+    }
+
+    // Seed content_store from JSON files (only if row doesn't exist yet)
+    try {
+        const contentDir = path.join(__dirname, '..', 'data');
+        const existingContent = db.prepare('SELECT lang FROM content_store LIMIT 1').get();
+        if (!existingContent && fs.existsSync(contentDir)) {
+            const insertContent = db.prepare('INSERT OR IGNORE INTO content_store (lang, data) VALUES (?, ?)');
+            const files = fs.readdirSync(contentDir).filter(f => f.startsWith('content') && f.endsWith('.json'));
+            for (const file of files) {
+                const lang = file === 'content.json' ? 'en' : file.replace('content.', '').replace('.json', '');
+                try {
+                    const raw = fs.readFileSync(path.join(contentDir, file), 'utf8');
+                    JSON.parse(raw); // validate JSON
+                    insertContent.run(lang, raw);
+                    console.log('[Seed] Content loaded for lang:', lang);
+                } catch (e) {
+                    console.error('[Seed] Failed to load', file, e.message);
+                }
+            }
+        }
+    } catch (e) {
+        console.error('[Seed] Content store seeding error:', e.message);
     }
 
     console.log('Database seeding complete');

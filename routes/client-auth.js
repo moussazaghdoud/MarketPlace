@@ -5,8 +5,13 @@ const crypto = require('crypto');
 const { getDb } = require('../db/connection');
 const { generateToken, clientAuth } = require('../middleware/auth');
 const salesforce = require('../services/salesforce');
+const { sendVerification } = require('../services/email');
 
 const router = express.Router();
+
+const BASE_URL = process.env.BASE_URL
+    || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null)
+    || `http://localhost:${process.env.PORT || 3000}`;
 
 // POST /api/client/register - Step 1: email, name, password
 router.post('/register', (req, res) => {
@@ -28,11 +33,13 @@ router.post('/register', (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, 'pending')
     `).run(id, email, hashed, firstName, lastName, verificationToken);
 
-    // In production, send verification email here
-    // For now, auto-verify
-    db.prepare('UPDATE clients SET emailVerified = 1, status = ? WHERE id = ?').run('active', id);
+    // Send verification email
+    const verifyUrl = `${BASE_URL}/verify-email?token=${verificationToken}`;
+    sendVerification(email, { verifyUrl, firstName })
+        .catch(err => console.error('[Email] Verification send failed:', err.message));
 
     // Fire-and-forget: create Salesforce Lead
+    console.log('[Salesforce] Attempting lead creation for:', email);
     salesforce.createLead({ firstName, lastName, email })
         .then(result => {
             if (result.leadId) {
@@ -42,15 +49,7 @@ router.post('/register', (req, res) => {
         })
         .catch(err => console.error('[Salesforce] Lead creation failed:', err.message));
 
-    const token = generateToken({
-        id, email, firstName, lastName, type: 'client'
-    });
-
-    res.json({
-        token,
-        user: { id, email, firstName, lastName },
-        verificationToken // included for dev/testing
-    });
+    res.json({ success: true, message: 'Account created. Check your email to verify.' });
 });
 
 // POST /api/client/register-step2 - Company info
@@ -65,6 +64,23 @@ router.post('/register-step2', clientAuth, (req, res) => {
     res.json({ success: true });
 });
 
+// POST /api/client/verify-email
+router.post('/verify-email', (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Token required' });
+
+    const db = getDb();
+    const client = db.prepare('SELECT id FROM clients WHERE verificationToken = ?').get(token);
+    if (!client) {
+        return res.status(400).json({ error: 'Invalid or expired verification link' });
+    }
+
+    db.prepare('UPDATE clients SET emailVerified = 1, status = ?, verificationToken = NULL, updatedAt = datetime(?) WHERE id = ?')
+        .run('active', new Date().toISOString(), client.id);
+
+    res.json({ success: true, message: 'Email verified successfully. You can now sign in.' });
+});
+
 // POST /api/client/login
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
@@ -75,6 +91,9 @@ router.post('/login', (req, res) => {
     const client = db.prepare('SELECT * FROM clients WHERE email = ?').get(email);
     if (!client || !bcrypt.compareSync(password, client.password)) {
         return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    if (!client.emailVerified) {
+        return res.status(403).json({ error: 'Please verify your email before signing in. Check your inbox.' });
     }
     if (client.status === 'suspended') {
         return res.status(403).json({ error: 'Account suspended. Contact support.' });

@@ -8,6 +8,69 @@ const cookieParser = require('cookie-parser');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { v4: uuidv4 } = require('uuid');
 
+// ===================== PERSISTENT VOLUME =====================
+// On Railway, /data is a persistent volume. We copy default files there
+// on first deploy, then use /data as the source of truth for all mutable data.
+let VOLUME_PATH = '';
+try {
+    VOLUME_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATABASE_PATH || '';
+    if (!VOLUME_PATH && fs.existsSync('/data') && fs.statSync('/data').isDirectory()) {
+        VOLUME_PATH = '/data';
+    }
+} catch (e) {
+    console.log('[Volume] Detection error:', e.message);
+}
+
+const DATA_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'db') : path.join(__dirname, 'data');
+const I18N_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'i18n') : path.join(__dirname, 'i18n');
+const IMAGES_DIR = VOLUME_PATH ? path.join(VOLUME_PATH, 'images') : path.join(__dirname, 'images');
+
+console.log('[Volume] VOLUME_PATH=' + JSON.stringify(VOLUME_PATH) + ' DATA_DIR=' + DATA_DIR + ' I18N_DIR=' + I18N_DIR);
+
+try {
+    if (VOLUME_PATH) {
+        // Ensure directories exist
+        [DATA_DIR, I18N_DIR, IMAGES_DIR].forEach(dir => {
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        });
+
+        // Copy default data files if not yet present on volume
+        const srcData = path.join(__dirname, 'data');
+        if (fs.existsSync(srcData)) {
+            fs.readdirSync(srcData).forEach(f => {
+                if (f.endsWith('.json')) {
+                    const dest = path.join(DATA_DIR, f);
+                    if (!fs.existsSync(dest)) {
+                        fs.copyFileSync(path.join(srcData, f), dest);
+                        console.log('[Volume] Copied', f);
+                    }
+                }
+            });
+        }
+
+        // Copy default i18n files if not yet present on volume
+        const srcI18n = path.join(__dirname, 'i18n');
+        if (fs.existsSync(srcI18n)) {
+            fs.readdirSync(srcI18n).forEach(f => {
+                if (f.endsWith('.json')) {
+                    const dest = path.join(I18N_DIR, f);
+                    if (!fs.existsSync(dest)) {
+                        fs.copyFileSync(path.join(srcI18n, f), dest);
+                        console.log('[Volume] Copied', f);
+                    }
+                }
+            });
+        }
+        console.log('[Volume] Bootstrap complete');
+    }
+} catch (e) {
+    console.error('[Volume] Bootstrap error:', e.message);
+}
+
+// Export paths for other modules
+process.env._DATA_DIR = DATA_DIR;
+process.env._I18N_DIR = I18N_DIR;
+
 // Database initialization
 const { seed } = require('./db/seed');
 seed();
@@ -18,7 +81,7 @@ const { adminAuth } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CONTENT_PATH = path.join(__dirname, 'data', 'content.json');
+const CONTENT_PATH = path.join(DATA_DIR, 'content.json');
 
 // Rainbow config
 const RAINBOW_DOMAIN = process.env.RAINBOW_DOMAIN || 'https://sandbox.openrainbow.com';
@@ -96,7 +159,7 @@ app.use((req, res, next) => {
 // Multer storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, 'images'));
+        cb(null, IMAGES_DIR);
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);
@@ -108,20 +171,122 @@ const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } 
 
 // Static files
 app.use(express.static(__dirname, { index: false }));
+// Serve uploaded images from persistent volume (overrides local /images)
+if (VOLUME_PATH) {
+    app.use('/images', express.static(IMAGES_DIR));
+}
+
+// ===================== SERVER-SIDE I18N =====================
+
+const SUPPORTED_LANGS = ['en', 'fr', 'es', 'it', 'de'];
+const i18nFileCache = {};
+const translatedPageCache = {};
+
+function loadI18nFile(lang) {
+    if (i18nFileCache[lang]) return i18nFileCache[lang];
+    try {
+        const data = JSON.parse(fs.readFileSync(path.join(I18N_DIR, lang + '.json'), 'utf8'));
+        i18nFileCache[lang] = data;
+        return data;
+    } catch (e) { return null; }
+}
+
+function i18nGetKey(obj, key) {
+    const parts = key.split('.');
+    let val = obj;
+    for (const part of parts) {
+        if (val == null) return undefined;
+        val = val[part];
+    }
+    return val;
+}
+
+function translateHTML(html, lang) {
+    const tr = loadI18nFile(lang);
+    const en = loadI18nFile('en');
+    if (!tr) return html;
+
+    function lookup(key) {
+        let val = i18nGetKey(tr, key);
+        if (val !== undefined) return val;
+        if (en) { val = i18nGetKey(en, key); if (val !== undefined) return val; }
+        return null;
+    }
+
+    // data-i18n="key">text</
+    html = html.replace(/(data-i18n="([^"]+)"[^>]*>)([^<]*?)(<\/)/g, (m, before, key, oldText, after) => {
+        const val = lookup(key);
+        return val !== null ? before + val + after : m;
+    });
+    // data-i18n-html="key">html content</
+    html = html.replace(/(data-i18n-html="([^"]+)"[^>]*>)([\s\S]*?)(<\/)/g, (m, before, key, oldContent, after) => {
+        const val = lookup(key);
+        return val !== null ? before + val + after : m;
+    });
+    // data-i18n-placeholder="key" ... placeholder="old"
+    html = html.replace(/(data-i18n-placeholder="([^"]+)"[^>]*?)(placeholder=")([^"]*?)(")/g, (m, before, key, pAttr, oldVal, pEnd) => {
+        const val = lookup(key);
+        return val !== null ? before + pAttr + val + pEnd : m;
+    });
+    // placeholder="old" ... data-i18n-placeholder="key" (reverse order)
+    html = html.replace(/(placeholder=")([^"]*?)("[^>]*?data-i18n-placeholder="([^"]+)")/g, (m, pAttr, oldVal, after, key) => {
+        const val = lookup(key);
+        return val !== null ? pAttr + val + after : m;
+    });
+    // Update <html lang="en"> to <html lang="xx">
+    html = html.replace(/<html\s+lang="[^"]*"/, '<html lang="' + lang + '"');
+
+    return html;
+}
+
+function sendPage(req, res, filePath) {
+    const lang = req.cookies && req.cookies.lang;
+    if (!lang || lang === 'en' || SUPPORTED_LANGS.indexOf(lang) === -1) {
+        return res.sendFile(filePath);
+    }
+    const cacheKey = filePath + ':' + lang;
+    if (translatedPageCache[cacheKey]) {
+        return res.type('html').send(translatedPageCache[cacheKey]);
+    }
+    try {
+        const html = fs.readFileSync(filePath, 'utf8');
+        const translated = translateHTML(html, lang);
+        translatedPageCache[cacheKey] = translated;
+        res.type('html').send(translated);
+    } catch (e) {
+        res.sendFile(filePath);
+    }
+}
+
+// Expose cache-clearing function for route modules
+function clearI18nCache() {
+    Object.keys(translatedPageCache).forEach(k => delete translatedPageCache[k]);
+    Object.keys(i18nFileCache).forEach(k => delete i18nFileCache[k]);
+}
+app.locals.clearI18nCache = clearI18nCache;
+
+// API to clear translation cache (called when admin updates content)
+app.post('/api/admin/clear-i18n-cache', adminAuth, (req, res) => {
+    clearI18nCache();
+    res.json({ success: true });
+});
 
 // ===================== PAGE ROUTES =====================
 
-// Public pages
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// Public pages (server-side translated)
+app.get('/', (req, res) => sendPage(req, res, path.join(__dirname, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'admin.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'client-login.html')));
-app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'client-portal.html')));
-app.get('/blog', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'blog.html')));
-app.get('/blog/:slug', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'blog-article.html')));
-app.get('/reviews', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'reviews.html')));
-app.get('/support', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'support.html')));
-app.get('/tutorials', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'tutorials.html')));
-app.get('/product/:slug', (req, res) => res.sendFile(path.join(__dirname, 'pages', 'product.html')));
+app.get('/login', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'client-login.html')));
+app.get('/portal', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'client-portal.html')));
+app.get('/blog', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'blog.html')));
+app.get('/blog/:slug', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'blog-article.html')));
+app.get('/reviews', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'reviews.html')));
+app.get('/support', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'support.html')));
+app.get('/tutorials', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'tutorials.html')));
+app.get('/products', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'products.html')));
+app.get('/product/:slug', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'product.html')));
+app.get('/offers', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'offers.html')));
+app.get('/verify-email', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'verify-email.html')));
 
 // ===================== API ROUTES =====================
 
@@ -135,6 +300,7 @@ app.use('/api/admin/clients', require('./routes/admin-clients'));
 app.use('/api/admin/products', require('./routes/admin-products'));
 app.use('/api/admin/subscriptions', require('./routes/admin-subscriptions'));
 app.use('/api/admin/blog', require('./routes/admin-blog'));
+app.use('/api/admin/i18n', require('./routes/admin-i18n'));
 
 // Admin audit log
 app.get('/api/admin/audit-log', adminAuth, (req, res) => {
@@ -161,6 +327,18 @@ app.use('/api/blog', require('./routes/public-blog'));
 app.use('/api/reviews', require('./routes/public-reviews'));
 app.use('/api/contact', require('./routes/public-contact'));
 
+// Public product list
+app.get('/api/products', (req, res) => {
+    const db = getDb();
+    const products = db.prepare('SELECT * FROM products WHERE isActive = 1 ORDER BY createdAt ASC').all();
+    res.json(products.map(p => ({
+        ...p,
+        plans: JSON.parse(p.plans || '{}'),
+        benefits: JSON.parse(p.benefits || '[]'),
+        gallery: JSON.parse(p.gallery || '[]')
+    })));
+});
+
 // Public product detail
 app.get('/api/products/:slug', (req, res) => {
     const db = getDb();
@@ -174,10 +352,22 @@ app.get('/api/products/:slug', (req, res) => {
     });
 });
 
-// --- Content management (JSON file) ---
+// --- Content management (DB-backed, with optional lang param) ---
 app.get('/api/content', (req, res) => {
     try {
-        const data = JSON.parse(fs.readFileSync(CONTENT_PATH, 'utf8'));
+        const lang = (req.query.lang && /^[a-z]{2}$/.test(req.query.lang)) ? req.query.lang : 'en';
+        const db = getDb();
+        // Try database first (persistent across deploys)
+        const row = db.prepare('SELECT data FROM content_store WHERE lang = ?').get(lang);
+        if (row) return res.json(JSON.parse(row.data));
+        // Fallback: try English from DB
+        if (lang !== 'en') {
+            const enRow = db.prepare('SELECT data FROM content_store WHERE lang = ?').get('en');
+            if (enRow) return res.json(JSON.parse(enRow.data));
+        }
+        // Last resort: read from JSON file
+        const filePath = CONTENT_PATH;
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: 'Failed to read content' });
@@ -186,8 +376,33 @@ app.get('/api/content', (req, res) => {
 
 app.post('/api/content', adminAuth, (req, res) => {
     try {
+        const lang = (req.query.lang && /^[a-z]{2}$/.test(req.query.lang)) ? req.query.lang : 'en';
         const data = JSON.stringify(req.body, null, 2);
-        fs.writeFileSync(CONTENT_PATH, data, 'utf8');
+        const db = getDb();
+        const upsert = db.prepare('INSERT INTO content_store (lang, data, updatedAt) VALUES (?, ?, datetime(\'now\')) ON CONFLICT(lang) DO UPDATE SET data = excluded.data, updatedAt = excluded.updatedAt');
+        upsert.run(lang, data);
+
+        // Sync pricing values (price, pricePerUser, highlighted, badge) across all languages
+        if (req.body.pricing && req.body.pricing.plans) {
+            const savedPlans = req.body.pricing.plans;
+            const allRows = db.prepare('SELECT lang, data FROM content_store WHERE lang != ?').all(lang);
+            for (const row of allRows) {
+                try {
+                    const other = JSON.parse(row.data);
+                    if (other.pricing && other.pricing.plans && other.pricing.plans.length === savedPlans.length) {
+                        for (let i = 0; i < savedPlans.length; i++) {
+                            other.pricing.plans[i].price = savedPlans[i].price;
+                            other.pricing.plans[i].pricePerUser = savedPlans[i].pricePerUser;
+                            other.pricing.plans[i].highlighted = savedPlans[i].highlighted;
+                            if (savedPlans[i].badge !== undefined) other.pricing.plans[i].badge = savedPlans[i].badge;
+                            if (savedPlans[i].ctaLink !== undefined) other.pricing.plans[i].ctaLink = savedPlans[i].ctaLink;
+                        }
+                        upsert.run(row.lang, JSON.stringify(other, null, 2));
+                    }
+                } catch (e) { /* skip malformed rows */ }
+            }
+        }
+
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: 'Failed to save content' });
@@ -269,6 +484,18 @@ function logAudit(userId, userType, action, details, ipAddress) {
 }
 app.locals.logAudit = logAudit;
 
+// ===================== HEALTH CHECK =====================
+
+app.get('/healthz', (req, res) => {
+    try {
+        const db = getDb();
+        db.prepare('SELECT 1').get();
+        res.json({ status: 'ok' });
+    } catch (e) {
+        res.status(500).json({ status: 'error', message: e.message });
+    }
+});
+
 // ===================== ERROR HANDLER =====================
 
 app.use((err, req, res, next) => {
@@ -285,4 +512,5 @@ app.listen(PORT, () => {
     console.log(`Blog: http://localhost:${PORT}/blog`);
     console.log(`Rainbow APP_ID: ${RAINBOW_APP_ID ? RAINBOW_APP_ID.slice(0, 6) + '...' : 'NOT SET'}`);
     console.log(`Stripe: ${process.env.STRIPE_SECRET_KEY ? 'configured' : 'NOT SET'}`);
+    console.log(`Salesforce: ${process.env.SF_CLIENT_ID ? 'configured' : 'NOT SET'}`);
 });

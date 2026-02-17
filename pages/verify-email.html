@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainbow - Verify Email</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rainbow: {
+                            50: '#eef1fe',
+                            100: '#d9dffe',
+                            200: '#b8c3fd',
+                            300: '#8da0fb',
+                            400: '#6e83f8',
+                            500: '#4F6DF5',
+                            600: '#3a54e0',
+                            700: '#2d42b8',
+                            800: '#243591',
+                            900: '#1e2d76',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- NAV -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+            <a href="/" class="flex items-center gap-2">
+                <img src="/img/rainbow-logo.png" alt="Rainbow" class="w-8 h-8 rounded-lg">
+                <span class="text-lg font-bold text-gray-900">Rainbow</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="flex items-center justify-center p-4 min-h-screen pt-24">
+        <div class="w-full max-w-md text-center">
+            <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                <!-- Loading state -->
+                <div id="state-loading">
+                    <div class="w-12 h-12 bg-rainbow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-rainbow-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-1">Verifying your email...</h2>
+                    <p class="text-sm text-gray-500">Please wait a moment.</p>
+                </div>
+
+                <!-- Success state -->
+                <div id="state-success" class="hidden">
+                    <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-1">Email verified!</h2>
+                    <p class="text-sm text-gray-500 mb-6">Your account is now active. You can sign in.</p>
+                    <a href="/login" class="inline-block px-6 py-2.5 bg-rainbow-500 hover:bg-rainbow-600 text-white font-semibold rounded-lg text-sm transition-colors">
+                        Sign In
+                    </a>
+                </div>
+
+                <!-- Error state -->
+                <div id="state-error" class="hidden">
+                    <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-1">Verification failed</h2>
+                    <p id="error-message" class="text-sm text-gray-500 mb-6">Invalid or expired verification link.</p>
+                    <a href="/login" class="inline-block px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg text-sm transition-colors">
+                        Back to Sign In
+                    </a>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-gray-400 mt-6">
+                &copy; 2026 Rainbow by Alcatel-Lucent Enterprise. All rights reserved.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        (async function() {
+            const token = new URLSearchParams(window.location.search).get('token');
+            if (!token) {
+                showError('No verification token provided.');
+                return;
+            }
+            try {
+                const res = await fetch('/api/client/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    document.getElementById('state-loading').classList.add('hidden');
+                    document.getElementById('state-success').classList.remove('hidden');
+                } else {
+                    showError(data.error || 'Verification failed.');
+                }
+            } catch (e) {
+                showError('Network error. Please try again.');
+            }
+        })();
+
+        function showError(msg) {
+            document.getElementById('state-loading').classList.add('hidden');
+            document.getElementById('error-message').textContent = msg;
+            document.getElementById('state-error').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

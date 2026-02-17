@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rainbow - Plateforme de Communication Cloud</title>
-    <meta name="description" content="Decouvrez Rainbow par Alcatel-Lucent Enterprise : messagerie, visioconference, telephonie cloud et collaboration d'entreprise.">
+    <title>Rainbow - Cloud Communication Platform</title>
+    <meta name="description" content="Discover Rainbow by Alcatel-Lucent Enterprise: messaging, video conferencing, cloud telephony, and enterprise collaboration.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,6 +21,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .lang-switcher { position: relative; }
+        .lang-switcher button { display: flex; align-items: center; gap: 4px; font-size: 0.8125rem; color: #64748b; cursor: pointer; background: none; border: none; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
+        .lang-switcher button:hover { color: #0f172a; }
+        .lang-switcher .lang-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 140px; z-index: 200; padding: 4px 0; margin-top: 4px; }
+        .lang-switcher.open .lang-dropdown { display: block; }
+        .lang-dropdown button { display: block; width: 100%; text-align: left; padding: 8px 14px; font-size: 0.8125rem; color: #374151; border: none; background: none; cursor: pointer; }
+        .lang-dropdown button:hover { background: #f1f5f9; }
+        .lang-dropdown button.active { color: #4F6DF5; font-weight: 600; }
+    </style>
 </head>
 <body class="font-sans text-gray-700 antialiased bg-white">
 
@@ -28,49 +38,55 @@
     <nav id="navbar" class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
             <a href="/" class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
+                <img src="/img/rainbow-logo.png" alt="Rainbow" class="w-8 h-8 rounded-lg">
                 <span class="text-lg font-bold text-gray-900">Rainbow</span>
             </a>
             <div class="hidden md:flex items-center gap-6">
-                <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Accueil</a>
-                <a href="/product/rainbow" class="text-sm font-medium text-brand-500 transition-colors">Produit</a>
-                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Blog</a>
-                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Avis</a>
-                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Support</a>
-                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Tutoriels</a>
-                <a href="/login" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">Se connecter</a>
-                <a href="/" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors">Demarrer</a>
+                <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.home">Home</a>
+                <a href="/products" class="text-sm font-medium text-brand-500 transition-colors" data-i18n="nav.product">Product</a>
+                <a href="/offers" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.offers">Offers</a>
+                <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.blog">Blog</a>
+                <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.reviews">Reviews</a>
+                <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.support">Support</a>
+                <a href="/tutorials" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.tutorials">Tutorials</a>
+                <div class="lang-switcher" id="lang-switcher">
+                    <button onclick="document.getElementById('lang-switcher').classList.toggle('open')">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
+                        <span id="lang-current">EN</span>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown"></div>
+                </div>
+                <a href="/login" class="px-5 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors" data-i18n="nav.signin">Sign in</a>
             </div>
             <button id="mobile-menu-btn" class="md:hidden p-2" aria-label="Menu">
                 <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </div>
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
-            <a href="/" class="block text-sm text-gray-600 py-2">Accueil</a>
-            <a href="/product/rainbow" class="block text-sm font-medium text-brand-500 py-2">Produit</a>
-            <a href="/blog" class="block text-sm text-gray-600 py-2">Blog</a>
-            <a href="/reviews" class="block text-sm text-gray-600 py-2">Avis</a>
-            <a href="/support" class="block text-sm text-gray-600 py-2">Support</a>
-            <a href="/tutorials" class="block text-sm text-gray-600 py-2">Tutoriels</a>
-            <a href="/login" class="block text-sm text-gray-600 py-2">Se connecter</a>
-            <a href="/" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5">Demarrer</a>
+            <a href="/" class="block text-sm text-gray-600 py-2" data-i18n="nav.home">Home</a>
+            <a href="/products" class="block text-sm font-medium text-brand-500 py-2" data-i18n="nav.product">Product</a>
+            <a href="/offers" class="block text-sm text-gray-600 py-2" data-i18n="nav.offers">Offers</a>
+            <a href="/blog" class="block text-sm text-gray-600 py-2" data-i18n="nav.blog">Blog</a>
+            <a href="/reviews" class="block text-sm text-gray-600 py-2" data-i18n="nav.reviews">Reviews</a>
+            <a href="/support" class="block text-sm text-gray-600 py-2" data-i18n="nav.support">Support</a>
+            <a href="/tutorials" class="block text-sm text-gray-600 py-2" data-i18n="nav.tutorials">Tutorials</a>
+            <div id="mobile-lang-switcher" class="flex flex-wrap gap-2 py-2"></div>
+            <a href="/login" class="block w-full text-center text-sm font-medium text-white bg-brand-500 rounded-lg py-2.5" data-i18n="nav.signin">Sign in</a>
         </div>
     </nav>
 
     <!-- LOADING -->
     <div id="loading" class="pt-28 pb-20 px-6 text-center">
         <div class="inline-block w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-3 text-gray-400 text-sm">Chargement du produit...</p>
+        <p class="mt-3 text-gray-400 text-sm" data-i18n="product.loading">Loading product...</p>
     </div>
 
     <!-- NOT FOUND -->
     <div id="not-found" class="pt-28 pb-20 px-6 text-center hidden">
         <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Produit introuvable</h1>
-        <p class="text-gray-500 mb-6">Le produit demande n'existe pas ou n'est plus disponible.</p>
-        <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors">Retour a l'accueil</a>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2" data-i18n="product.notFoundTitle">Product not found</h1>
+        <p class="text-gray-500 mb-6" data-i18n="product.notFoundDescription">The requested product does not exist or is no longer available.</p>
+        <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors" data-i18n="product.backToHome">Back to home</a>
     </div>
 
     <!-- PRODUCT CONTENT -->
@@ -81,12 +97,12 @@
             <div class="max-w-5xl mx-auto">
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
                     <div class="text-center lg:text-left">
-                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-4">Produit</span>
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-4" data-i18n="product.breadcrumbProduct">Product</span>
                         <h1 id="product-name" class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight"></h1>
                         <p id="product-short-desc" class="mt-5 text-lg text-gray-500 max-w-xl leading-relaxed"></p>
                         <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                            <a href="/login" class="px-7 py-3 rounded-lg bg-brand-500 text-white font-medium hover:bg-brand-600 transition-colors text-center">Demarrer maintenant</a>
-                            <a href="#pricing-section" class="px-7 py-3 rounded-lg border border-gray-200 text-gray-700 font-medium hover:border-gray-300 transition-colors text-center">Voir les tarifs</a>
+                            <a href="/login" class="px-7 py-3 rounded-lg bg-brand-500 text-white font-medium hover:bg-brand-600 transition-colors text-center" data-i18n="product.getStarted">Get started now</a>
+                            <a href="#pricing-section" class="px-7 py-3 rounded-lg border border-gray-200 text-gray-700 font-medium hover:border-gray-300 transition-colors text-center" data-i18n="product.viewPricing">View pricing</a>
                         </div>
                     </div>
                     <div id="hero-image-wrapper" class="hidden lg:block">
@@ -101,7 +117,7 @@
         <!-- FULL DESCRIPTION -->
         <section class="py-16 px-6">
             <div class="max-w-3xl mx-auto">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">A propos de ce produit</h2>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6" data-i18n="product.aboutTitle">About this product</h2>
                 <div id="product-full-desc" class="text-gray-600 leading-relaxed space-y-4"></div>
             </div>
         </section>
@@ -109,7 +125,7 @@
         <!-- BENEFITS -->
         <section id="benefits-section" class="py-16 px-6 bg-gray-50 hidden">
             <div class="max-w-5xl mx-auto">
-                <h2 class="text-2xl font-bold text-gray-900 text-center mb-10">Avantages cles</h2>
+                <h2 class="text-2xl font-bold text-gray-900 text-center mb-10" data-i18n="product.benefitsTitle">Key Benefits</h2>
                 <div id="benefits-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
         </section>
@@ -117,7 +133,7 @@
         <!-- IMAGE GALLERY -->
         <section id="gallery-section" class="py-16 px-6 hidden">
             <div class="max-w-5xl mx-auto">
-                <h2 class="text-2xl font-bold text-gray-900 text-center mb-10">Galerie</h2>
+                <h2 class="text-2xl font-bold text-gray-900 text-center mb-10" data-i18n="product.galleryTitle">Gallery</h2>
                 <div id="gallery-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
         </section>
@@ -126,11 +142,11 @@
         <section id="pricing-section" class="py-20 px-6 bg-gradient-to-b from-white via-brand-50 to-white">
             <div class="max-w-5xl mx-auto">
                 <div class="text-center mb-14">
-                    <h2 class="text-3xl font-bold text-gray-900">Tarifs & Abonnements</h2>
-                    <p class="mt-3 text-gray-500">Choisissez le plan qui correspond a vos besoins.</p>
+                    <h2 class="text-3xl font-bold text-gray-900" data-i18n="product.pricingTitle">Pricing & Plans</h2>
+                    <p class="mt-3 text-gray-500" data-i18n="product.pricingSubtitle">Choose the plan that fits your needs.</p>
                 </div>
                 <div id="pricing-grid" class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto"></div>
-                <p class="text-center text-xs text-gray-400 mt-8">Paiements securises via Stripe. Annulation possible a tout moment.</p>
+                <p class="text-center text-xs text-gray-400 mt-8" data-i18n="product.stripeNote">Secure payments via Stripe. Cancel anytime.</p>
             </div>
         </section>
 
@@ -138,12 +154,12 @@
         <section id="reviews-section" class="py-16 px-6 bg-gray-50 hidden">
             <div class="max-w-5xl mx-auto">
                 <div class="text-center mb-10">
-                    <h2 class="text-2xl font-bold text-gray-900">Ce que nos clients disent</h2>
-                    <p class="mt-2 text-gray-500">Temoignages de clients verifies.</p>
+                    <h2 class="text-2xl font-bold text-gray-900" data-i18n="product.reviewsTitle">What our customers say</h2>
+                    <p class="mt-2 text-gray-500" data-i18n="product.reviewsSubtitle">Testimonials from verified customers.</p>
                 </div>
                 <div id="reviews-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 <div class="text-center mt-8">
-                    <a href="/reviews" class="text-sm font-medium text-brand-500 hover:text-brand-600 transition-colors">Voir tous les avis &rarr;</a>
+                    <a href="/reviews" class="text-sm font-medium text-brand-500 hover:text-brand-600 transition-colors" data-i18n="product.viewAllReviews">View all reviews &rarr;</a>
                 </div>
             </div>
         </section>
@@ -151,10 +167,10 @@
         <!-- FINAL CTA -->
         <section class="py-16 px-6 bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-500">
             <div class="max-w-2xl mx-auto text-center">
-                <h2 class="text-2xl font-bold text-white">Pret a transformer votre communication ?</h2>
-                <p class="mt-2 text-blue-100 text-sm">Rejoignez des milliers d'entreprises qui utilisent Rainbow. Commencez gratuitement des aujourd'hui.</p>
-                <a href="/login" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors">
-                    Demarrer maintenant
+                <h2 class="text-2xl font-bold text-white" data-i18n="product.ctaTitle">Ready to transform your communication?</h2>
+                <p class="mt-2 text-blue-100 text-sm" data-i18n="product.ctaDescription">Join thousands of businesses using Rainbow. Get started for free today.</p>
+                <a href="/login" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors" data-i18n="product.ctaBtn">
+                    Get started now
                 </a>
             </div>
         </section>
@@ -165,53 +181,61 @@
         <div class="max-w-6xl mx-auto">
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Produit</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.product">Product</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/product/rainbow" class="hover:text-white transition-colors">Rainbow</a></li>
-                        <li><a href="/#features" class="hover:text-white transition-colors">Fonctionnalites</a></li>
-                        <li><a href="/#pricing" class="hover:text-white transition-colors">Tarifs</a></li>
-                        <li><a href="/#demo" class="hover:text-white transition-colors">Demo</a></li>
+                        <li><a href="/products" class="hover:text-white transition-colors" data-i18n="footer.rainbow">Rainbow</a></li>
+                        <li><a href="/#features" class="hover:text-white transition-colors" data-i18n="footer.features">Features</a></li>
+                        <li><a href="/offers" class="hover:text-white transition-colors" data-i18n="footer.pricing">Pricing</a></li>
+                        <li><a href="/#demo" class="hover:text-white transition-colors" data-i18n="footer.demo">Demo</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Ressources</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.resources">Resources</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/blog" class="hover:text-white transition-colors">Blog</a></li>
-                        <li><a href="/tutorials" class="hover:text-white transition-colors">Tutoriels</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Documentation API</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Changelog</a></li>
+                        <li><a href="/blog" class="hover:text-white transition-colors" data-i18n="footer.blog">Blog</a></li>
+                        <li><a href="/tutorials" class="hover:text-white transition-colors" data-i18n="footer.tutorials">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.apiDocs">API Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.changelog">Changelog</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Support</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.support">Support</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/support" class="hover:text-white transition-colors">Centre d'aide</a></li>
-                        <li><a href="/support" class="hover:text-white transition-colors">Contactez-nous</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Statut du service</a></li>
-                        <li><a href="/reviews" class="hover:text-white transition-colors">Avis clients</a></li>
+                        <li><a href="/support" class="hover:text-white transition-colors" data-i18n="footer.helpCenter">Help Center</a></li>
+                        <li><a href="/support" class="hover:text-white transition-colors" data-i18n="footer.contactUs">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.serviceStatus">Service Status</a></li>
+                        <li><a href="/reviews" class="hover:text-white transition-colors" data-i18n="footer.customerReviews">Customer Reviews</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold text-sm mb-4">Entreprise</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4" data-i18n="footer.company">Company</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">A propos</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Carrieres</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Mentions legales</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Politique de confidentialite</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.about">About</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.careers">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.legalNotice">Legal Notice</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors" data-i18n="footer.privacyPolicy">Privacy Policy</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-                &copy; 2024 Rainbow by ALE. Tous droits reserves.
+            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500" data-i18n-html="footer.copyright">
+                &copy; 2024 Rainbow by ALE. All rights reserved.
             </div>
         </div>
     </footer>
 
+    <script src="/js/i18n.js"></script>
     <script>
         // Mobile menu toggle
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
+        // Close lang-switcher on outside click
+        document.addEventListener('click', function(e) {
+            var sw = document.getElementById('lang-switcher');
+            if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+        });
+
+        function t(k,f){return typeof i18n!=='undefined'?i18n.t(k,f):f;}
 
         // Extract slug from URL path
         var pathParts = window.location.pathname.split('/');
@@ -334,7 +358,7 @@
 
                         var popularBadge = '';
                         if (isPopular) {
-                            popularBadge = '<div class="absolute -top-3 left-1/2 -translate-x-1/2"><span class="px-3 py-1 rounded-full text-xs font-medium bg-brand-500 text-white">Populaire</span></div>';
+                            popularBadge = '<div class="absolute -top-3 left-1/2 -translate-x-1/2"><span class="px-3 py-1 rounded-full text-xs font-medium bg-brand-500 text-white">Popular</span></div>';
                         }
 
                         var featuresHtml = '';
@@ -353,14 +377,14 @@
                             '<div class="text-center mb-6">' +
                                 '<h3 class="text-lg font-bold text-gray-900">' + escapeHtml(name) + '</h3>' +
                                 '<div class="mt-3">' +
-                                    '<span class="text-4xl font-bold text-gray-900">' + (parseFloat(price) === 0 ? 'Gratuit' : price + ' &euro;') + '</span>' +
-                                    (parseFloat(price) > 0 ? '<span class="text-sm text-gray-400"> /mois /utilisateur</span>' : '') +
+                                    '<span class="text-4xl font-bold text-gray-900">' + (parseFloat(price) === 0 ? 'Free' : '&euro;' + price) + '</span>' +
+                                    (parseFloat(price) > 0 ? '<span class="text-sm text-gray-400"> /month /user</span>' : '') +
                                 '</div>' +
                             '</div>' +
                             '<ul class="space-y-3 text-sm text-gray-600 mb-6">' + featuresHtml + '</ul>' +
                             '<a href="/login" class="block w-full text-center py-2.5 rounded-lg text-sm font-medium transition-colors ' +
                                 (isPopular ? 'bg-brand-500 text-white hover:bg-brand-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') +
-                            '">Choisir ce plan</a>';
+                            '">' + t('product.choosePlan','Choose this plan') + '</a>';
                         pricingGrid.appendChild(card);
                     });
                 } else {
@@ -398,7 +422,7 @@
 
                 topReviews.forEach(function(review, idx) {
                     var initial = (review.authorName || review.author || 'A').charAt(0).toUpperCase();
-                    var name = review.authorName || review.author || 'Anonyme';
+                    var name = review.authorName || review.author || 'Anonymous';
                     var company = review.company || '';
                     var text = review.text || review.content || '';
                     var rating = review.rating || 5;
