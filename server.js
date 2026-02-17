@@ -351,15 +351,21 @@ app.get('/api/products/:slug', (req, res) => {
     });
 });
 
-// --- Content management (JSON file, with optional lang param) ---
+// --- Content management (DB-backed, with optional lang param) ---
 app.get('/api/content', (req, res) => {
     try {
-        const lang = req.query.lang;
-        let filePath = CONTENT_PATH;
-        if (lang && lang !== 'en' && /^[a-z]{2}$/.test(lang)) {
-            const localizedPath = path.join(DATA_DIR, 'content.' + lang + '.json');
-            if (fs.existsSync(localizedPath)) filePath = localizedPath;
+        const lang = (req.query.lang && /^[a-z]{2}$/.test(req.query.lang)) ? req.query.lang : 'en';
+        const db = getDb();
+        // Try database first (persistent across deploys)
+        const row = db.prepare('SELECT data FROM content_store WHERE lang = ?').get(lang);
+        if (row) return res.json(JSON.parse(row.data));
+        // Fallback: try English from DB
+        if (lang !== 'en') {
+            const enRow = db.prepare('SELECT data FROM content_store WHERE lang = ?').get('en');
+            if (enRow) return res.json(JSON.parse(enRow.data));
         }
+        // Last resort: read from JSON file
+        const filePath = CONTENT_PATH;
         const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         res.json(data);
     } catch (err) {
@@ -369,8 +375,11 @@ app.get('/api/content', (req, res) => {
 
 app.post('/api/content', adminAuth, (req, res) => {
     try {
+        const lang = (req.query.lang && /^[a-z]{2}$/.test(req.query.lang)) ? req.query.lang : 'en';
         const data = JSON.stringify(req.body, null, 2);
-        fs.writeFileSync(CONTENT_PATH, data, 'utf8');
+        const db = getDb();
+        db.prepare('INSERT INTO content_store (lang, data, updatedAt) VALUES (?, ?, datetime(\'now\')) ON CONFLICT(lang) DO UPDATE SET data = excluded.data, updatedAt = excluded.updatedAt')
+            .run(lang, data);
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: 'Failed to save content' });

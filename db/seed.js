@@ -2,6 +2,8 @@ const { getDb } = require('./connection');
 const { createTables } = require('./schema');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const path = require('path');
 
 function seed() {
     createTables();
@@ -175,6 +177,25 @@ function seed() {
             stmt.run(uuidv4(), cat.name, cat.slug);
         }
         console.log('Default blog categories seeded');
+    }
+
+    // Seed content_store from JSON files (only if row doesn't exist yet)
+    const contentDir = path.join(__dirname, '..', 'data');
+    const existingContent = db.prepare('SELECT lang FROM content_store LIMIT 1').get();
+    if (!existingContent && fs.existsSync(contentDir)) {
+        const insertContent = db.prepare('INSERT OR IGNORE INTO content_store (lang, data) VALUES (?, ?)');
+        const files = fs.readdirSync(contentDir).filter(f => f.startsWith('content') && f.endsWith('.json'));
+        for (const file of files) {
+            const lang = file === 'content.json' ? 'en' : file.replace('content.', '').replace('.json', '');
+            try {
+                const raw = fs.readFileSync(path.join(contentDir, file), 'utf8');
+                JSON.parse(raw); // validate JSON
+                insertContent.run(lang, raw);
+                console.log('[Seed] Content loaded for lang:', lang);
+            } catch (e) {
+                console.error('[Seed] Failed to load', file, e.message);
+            }
+        }
     }
 
     console.log('Database seeding complete');

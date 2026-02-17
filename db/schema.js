@@ -150,6 +150,12 @@ function createTables() {
             ipAddress TEXT,
             createdAt TEXT DEFAULT (datetime('now'))
         );
+
+        CREATE TABLE IF NOT EXISTS content_store (
+            lang TEXT PRIMARY KEY,
+            data TEXT NOT NULL,
+            updatedAt TEXT DEFAULT (datetime('now'))
+        );
     `);
 
     console.log('Database tables created successfully');
