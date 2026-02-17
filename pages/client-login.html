@@ -340,7 +340,7 @@
             } else {
                 box.classList.add('bg-blue-50', 'text-blue-700');
             }
-            box.textContent = text;
+            box.textContent = (typeof text === 'string') ? text : String(text);
         }
 
         function hideMessage() {
@@ -376,7 +376,10 @@
             const res = await fetch(API_BASE + url, opts);
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-                throw new Error(data.error || data.message || 'An error occurred');
+                const errMsg = typeof data.error === 'string' ? data.error
+                    : typeof data.message === 'string' ? data.message
+                    : data.errorDetails || data.errorMsg || 'An error occurred';
+                throw new Error(errMsg);
             }
             return data;
         }
