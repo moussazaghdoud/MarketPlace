@@ -1276,9 +1276,29 @@
             if (planFromUrl) {
                 // Clean URL without reloading
                 window.history.replaceState({}, '', '/portal');
-                // Go to subscriptions and auto-open modal with pre-selected plan
+                // Auto-create subscription — user already chose plan on offers page
                 navigateTo('subscriptions');
-                await openNewSubscriptionModal(planFromUrl, licensesFromUrl);
+                try {
+                    const plans = await fetchPlans();
+                    const match = plans.find(p =>
+                        p.name.toLowerCase().replace(/\s+/g, '-') === planFromUrl.toLowerCase() ||
+                        p.name.toLowerCase() === planFromUrl.toLowerCase() ||
+                        (p.id && p.id === planFromUrl)
+                    );
+                    if (match) {
+                        await api('/api/client/subscriptions', 'POST', {
+                            planId: match.id,
+                            licenseCount: parseInt(licensesFromUrl) || 1
+                        });
+                        showToast(t('portal.subscriptionCreated','Subscription created successfully!'));
+                        navigateTo('subscriptions');
+                    } else {
+                        await openNewSubscriptionModal(planFromUrl, licensesFromUrl);
+                    }
+                } catch (err) {
+                    showToast(err.message, 'error');
+                    await openNewSubscriptionModal(planFromUrl, licensesFromUrl);
+                }
             } else {
                 renderPage('dashboard');
             }
