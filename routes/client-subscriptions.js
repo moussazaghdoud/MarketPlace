@@ -28,14 +28,29 @@ router.get('/', (req, res) => {
 
 // POST /api/client/subscriptions - Create subscription
 router.post('/', async (req, res) => {
-    const { productId, planKey, licenseCount, paymentMethodId } = req.body;
-    if (!productId || !planKey || !licenseCount) {
-        return res.status(400).json({ error: 'productId, planKey and licenseCount required' });
+    let { productId, planKey, planId, licenseCount, paymentMethodId } = req.body;
+
+    // Frontend sends planId (e.g. "business") — resolve to productId + planKey
+    if (planId && !planKey) planKey = planId;
+    if (!licenseCount) {
+        return res.status(400).json({ error: 'licenseCount required' });
     }
 
     const db = getDb();
-    const product = db.prepare('SELECT * FROM products WHERE id = ?').get(productId);
+    let product;
+    if (productId) {
+        product = db.prepare('SELECT * FROM products WHERE id = ?').get(productId);
+    }
+    // If no productId or not found, find product by planKey match
+    if (!product && planKey) {
+        const products = db.prepare('SELECT * FROM products WHERE isActive = 1').all();
+        product = products.find(p => {
+            const plans = JSON.parse(p.plans || '{}');
+            return plans[planKey];
+        });
+    }
     if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (!planKey) return res.status(400).json({ error: 'planKey required' });
 
     const plans = JSON.parse(product.plans || '{}');
     const plan = plans[planKey];
