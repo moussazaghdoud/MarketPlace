@@ -285,6 +285,7 @@ app.get('/support', (req, res) => sendPage(req, res, path.join(__dirname, 'pages
 app.get('/tutorials', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'tutorials.html')));
 app.get('/products', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'products.html')));
 app.get('/product/:slug', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'product.html')));
+app.get('/offers', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'offers.html')));
 
 // ===================== API ROUTES =====================
 

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Rainbow by Alcatel-Lucent Enterprise</title>
-    <meta name="description" content="Explore the Rainbow product family: Collaboration, Webinar, and Smart Hotel solutions by Alcatel-Lucent Enterprise.">
+    <title>Offers - Rainbow by Alcatel-Lucent Enterprise</title>
+    <meta name="description" content="Simple, transparent pricing for Rainbow cloud communication. Choose the plan that fits your team — Essential, Business, or Enterprise.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -43,8 +43,8 @@
             </a>
             <div class="hidden md:flex items-center gap-6">
                 <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.home">Home</a>
-                <a href="/products" class="text-sm font-medium text-brand-500 transition-colors" data-i18n="nav.product">Product</a>
-                <a href="/offers" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.offers">Offers</a>
+                <a href="/products" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.product">Product</a>
+                <a href="/offers" class="text-sm font-medium text-brand-500 transition-colors" data-i18n="nav.offers">Offers</a>
                 <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.blog">Blog</a>
                 <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.reviews">Reviews</a>
                 <a href="/support" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.support">Support</a>
@@ -64,8 +64,8 @@
         </div>
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
             <a href="/" class="block text-sm text-gray-600 py-2" data-i18n="nav.home">Home</a>
-            <a href="/products" class="block text-sm font-medium text-brand-500 py-2" data-i18n="nav.product">Product</a>
-            <a href="/offers" class="block text-sm text-gray-600 py-2" data-i18n="nav.offers">Offers</a>
+            <a href="/products" class="block text-sm text-gray-600 py-2" data-i18n="nav.product">Product</a>
+            <a href="/offers" class="block text-sm font-medium text-brand-500 py-2" data-i18n="nav.offers">Offers</a>
             <a href="/blog" class="block text-sm text-gray-600 py-2" data-i18n="nav.blog">Blog</a>
             <a href="/reviews" class="block text-sm text-gray-600 py-2" data-i18n="nav.reviews">Reviews</a>
             <a href="/support" class="block text-sm text-gray-600 py-2" data-i18n="nav.support">Support</a>
@@ -78,30 +78,46 @@
     <!-- HERO -->
     <header class="pt-28 pb-16 px-6 bg-gradient-to-br from-brand-100 via-white to-white">
         <div class="max-w-5xl mx-auto text-center">
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-4" data-i18n="products.heroTag">Our Solutions</span>
-            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight" data-i18n="products.heroTitle">Rainbow Product Family</h1>
-            <p class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto" data-i18n="products.heroDescription">Unified communication solutions designed for every business need — from team collaboration to large-scale webinars and smart hospitality.</p>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-4" data-i18n="nav.offers">Offers</span>
+            <h1 id="pricing-heading" class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight"></h1>
+            <p id="pricing-subheading" class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto"></p>
         </div>
     </header>
 
-    <!-- PRODUCTS GRID -->
+    <!-- PRICING -->
     <section class="px-6 pb-20 -mt-4">
-        <div id="products-grid" class="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
-            <!-- Loading state -->
-            <div class="col-span-full text-center py-12">
-                <div class="inline-block w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-                <p class="mt-3 text-gray-400 text-sm" data-i18n="products.loading">Loading products...</p>
+        <div class="max-w-5xl mx-auto">
+            <!-- License selector -->
+            <div class="flex items-center justify-center gap-3 mb-10">
+                <span class="text-sm text-gray-500" data-i18n="home.licensesLabel">Licenses:</span>
+                <div class="inline-flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                    <button onclick="adjustLicenses(-1)" class="px-3 py-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-lg font-medium transition-colors">-</button>
+                    <input id="license-count" type="number" value="5" min="1" max="1000" class="w-16 text-center font-semibold text-gray-900 border-x border-gray-200 py-2 focus:outline-none text-sm" onchange="updatePrices()">
+                    <button onclick="adjustLicenses(1)" class="px-3 py-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-lg font-medium transition-colors">+</button>
+                </div>
+                <span class="text-sm text-gray-400" data-i18n="home.usersLabel">users</span>
             </div>
+
+            <!-- Cards -->
+            <div id="pricing-grid" class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <!-- Loading state -->
+                <div class="col-span-full text-center py-12">
+                    <div class="inline-block w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="mt-3 text-gray-400 text-sm">Loading plans...</p>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-gray-400 mt-8" data-i18n="home.stripeNote">Secure payments via Stripe. Cancel anytime.</p>
         </div>
     </section>
 
     <!-- CTA -->
     <section class="py-16 px-6 bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-500">
         <div class="max-w-2xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-white" data-i18n="products.ctaTitle">Ready to transform your communication?</h2>
-            <p class="mt-2 text-blue-100 text-sm" data-i18n="products.ctaDescription">Start with Rainbow Collaboration today. More products coming soon.</p>
-            <a href="/login" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors" data-i18n="products.ctaBtn">
-                Get started now
+            <h2 class="text-2xl font-bold text-white" data-i18n="home.ctaTitle">Ready to get started?</h2>
+            <p class="mt-2 text-blue-100 text-sm" data-i18n="home.ctaDescription">Join thousands of enterprises using Rainbow. Start free today.</p>
+            <a href="/login" class="inline-block mt-6 px-7 py-3 rounded-lg bg-white text-brand-600 font-medium text-sm hover:bg-blue-50 transition-colors" data-i18n="nav.signin">
+                Sign in
             </a>
         </div>
     </section>
@@ -164,62 +180,136 @@
             if (sw && !sw.contains(e.target)) sw.classList.remove('open');
         });
 
-        function t(k,f){return typeof i18n!=='undefined'?i18n.t(k,f):f;}
+        function t(k, f) { return typeof i18n !== 'undefined' ? i18n.t(k, f) : f; }
 
-        // Gradient and icon config per product slug
-        var productStyles = {
-            'rainbow':      { gradient: 'from-blue-500 to-indigo-600', badgeBg: 'bg-blue-50', badgeText: 'text-blue-600', label: 'UCaaS', icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/>' },
-            'webinar':      { gradient: 'from-purple-500 to-pink-600', badgeBg: 'bg-purple-50', badgeText: 'text-purple-600', label: 'Webinar', icon: '<path stroke-linecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>' },
-            'smart-hotel':  { gradient: 'from-amber-500 to-orange-600', badgeBg: 'bg-amber-50', badgeText: 'text-amber-600', label: 'Hospitality', icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819"/>' }
-        };
-        var defaultStyle = { gradient: 'from-gray-500 to-gray-600', badgeBg: 'bg-gray-50', badgeText: 'text-gray-600', label: 'Product', icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"/>' };
-
-        function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-        async function loadProducts() {
-            var grid = document.getElementById('products-grid');
-            try {
-                var res = await fetch('/api/products');
-                var products = await res.json();
-
-                if (!products.length) {
-                    grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-400">' + t('products.noProducts','No products available yet.') + '</p></div>';
-                    return;
-                }
-
-                var hasPlans = function(p) { return p.plans && Object.keys(p.plans).length > 0; };
-
-                grid.innerHTML = products.map(function(p) {
-                    var style = productStyles[p.slug] || defaultStyle;
-                    var actionHtml = hasPlans(p)
-                        ? '<a href="/product/' + esc(p.slug) + '" class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-500 hover:text-brand-600 transition-colors">' + t('products.learnMore','Learn more') + ' <span>&rarr;</span></a>'
-                        : '<span class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-400">' + t('products.comingSoon','Coming soon') + '</span>';
-
-                    var hasImage = p.gallery && p.gallery.length > 0 && p.gallery[0];
-                    var headerHtml = hasImage
-                        ? '<div class="h-48 relative overflow-hidden"><img src="/' + esc(p.gallery[0]) + '" alt="' + esc(p.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"></div>'
-                        : '<div class="h-48 bg-gradient-to-br ' + style.gradient + ' flex items-center justify-center relative overflow-hidden"><svg class="w-20 h-20 text-white/80 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">' + style.icon + '</svg></div>';
-
-                    return '<div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 overflow-hidden group">' +
-                        headerHtml +
-                        '<div class="p-6">' +
-                            '<div class="flex items-center gap-2 mb-3">' +
-                                '<span class="px-2.5 py-0.5 rounded-full text-xs font-medium ' + style.badgeBg + ' ' + style.badgeText + '">' + esc(style.label) + '</span>' +
-                            '</div>' +
-                            '<h3 class="text-xl font-bold text-gray-900 mb-2">' + esc(p.name) + '</h3>' +
-                            '<p class="text-sm text-gray-500 leading-relaxed mb-5">' + esc(p.shortDescription || '') + '</p>' +
-                            actionHtml +
-                        '</div>' +
-                    '</div>';
-                }).join('');
-            } catch(e) {
-                grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-red-400">' + t('products.loadError','Failed to load products.') + '</p></div>';
-            }
+        function escapeHtml(s) {
+            var div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
         }
 
-        loadProducts();
+        // --- Pricing state ---
+        var PLANS = {};
 
-        window.addEventListener('langchange', function() { loadProducts(); });
+        function getLicenseCount() {
+            var input = document.getElementById('license-count');
+            var val = parseInt(input.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > 1000) val = 1000;
+            input.value = val;
+            return val;
+        }
+
+        function adjustLicenses(delta) {
+            var input = document.getElementById('license-count');
+            var val = parseInt(input.value, 10) + delta;
+            if (val < 1) val = 1;
+            if (val > 1000) val = 1000;
+            input.value = val;
+            updatePrices();
+        }
+
+        function updatePrices() {
+            var count = getLicenseCount();
+            var suffix = t('home.perMonthTotal', '/mo total');
+            Object.keys(PLANS).forEach(function(key) {
+                var plan = PLANS[key];
+                if (plan.pricePerUser > 0) {
+                    var el = document.getElementById(key + '-total');
+                    if (el) el.textContent = '\u20AC' + (plan.pricePerUser * count).toFixed(2) + suffix;
+                }
+            });
+        }
+
+        function checkout(planKey) {
+            var count = getLicenseCount();
+            window.location.href = '/login?plan=' + encodeURIComponent(planKey) + '&licenses=' + count;
+        }
+
+        function renderPricing(pricing) {
+            document.getElementById('pricing-heading').textContent = pricing.heading;
+            document.getElementById('pricing-subheading').textContent = pricing.subheading;
+
+            PLANS = {};
+            var grid = document.getElementById('pricing-grid');
+            grid.innerHTML = '';
+
+            var checkSvg = '<svg class="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+
+            pricing.plans.forEach(function(p) {
+                var planKey = p.name.toLowerCase().replace(/\s+/g, '-');
+                PLANS[planKey] = { name: p.name, pricePerUser: p.pricePerUser };
+
+                var card = document.createElement('div');
+                var borderClass = p.highlighted ? 'border-2 border-brand-500 relative' : 'border border-gray-200';
+                card.className = 'rounded-xl ' + borderClass + ' p-7 bg-white';
+
+                var badgeHtml = (p.highlighted && p.badge) ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-brand-500 text-white text-xs font-medium rounded-full">' + escapeHtml(p.badge) + '</span>' : '';
+
+                var priceHtml;
+                if (p.pricePerUser === 0) {
+                    priceHtml = '<p class="text-4xl font-bold text-gray-900 mb-1">' + escapeHtml(p.price) + '</p>';
+                } else {
+                    priceHtml =
+                        '<div class="flex items-baseline gap-0.5 mb-1">' +
+                            '<span class="text-sm text-gray-400">&euro;</span>' +
+                            '<span class="text-4xl font-bold text-gray-900">' + escapeHtml(p.price) + '</span>' +
+                        '</div>';
+                }
+
+                var totalHtml = '';
+                if (p.pricePerUser > 0) {
+                    totalHtml = '<p class="text-xs text-brand-600 font-medium mb-6" id="' + planKey + '-total"></p>';
+                }
+
+                var ctaHtml;
+                if (p.pricePerUser === 0 && !p.ctaLink) {
+                    ctaHtml = '<button onclick="checkout(\'' + planKey + '\')" class="w-full py-2.5 rounded-lg border border-brand-500 text-brand-600 text-sm font-medium hover:bg-blue-50 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
+                } else if (p.ctaLink) {
+                    ctaHtml = '<a href="' + p.ctaLink + '" target="_blank" class="block text-center py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-brand-500 hover:text-brand-600 transition-colors">' + escapeHtml(p.ctaText) + '</a>';
+                } else if (p.highlighted) {
+                    ctaHtml = '<button onclick="checkout(\'' + planKey + '\')" class="w-full py-2.5 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
+                } else {
+                    ctaHtml = '<button onclick="checkout(\'' + planKey + '\')" class="w-full py-2.5 rounded-lg border border-brand-500 text-brand-600 text-sm font-medium hover:bg-blue-50 transition-colors">' + escapeHtml(p.ctaText) + '</button>';
+                }
+
+                var featuresHtml = p.features.map(function(feat) {
+                    return '<li class="flex items-center gap-2">' + checkSvg + ' ' + escapeHtml(feat) + '</li>';
+                }).join('');
+
+                card.innerHTML = badgeHtml +
+                    '<h3 class="font-semibold text-gray-900">' + escapeHtml(p.name) + '</h3>' +
+                    '<p class="text-xs text-gray-400 mt-1 mb-5">' + escapeHtml(p.subtitle) + '</p>' +
+                    priceHtml +
+                    '<p class="text-xs text-gray-400 mb-1">' + escapeHtml(p.priceNote) + '</p>' +
+                    totalHtml +
+                    ctaHtml +
+                    '<ul class="mt-6 space-y-2.5 text-sm text-gray-500">' + featuresHtml + '</ul>';
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Load content and render pricing
+        function loadOffers() {
+            var lang = window.i18n ? i18n.getLang() : 'en';
+            var url = '/api/content' + (lang !== 'en' ? '?lang=' + lang : '');
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.pricing) {
+                        renderPricing(data.pricing);
+                        updatePrices();
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Failed to load pricing:', err);
+                    document.getElementById('pricing-grid').innerHTML = '<div class="col-span-full text-center py-12"><p class="text-red-400">Failed to load plans.</p></div>';
+                });
+        }
+
+        loadOffers();
+        window.addEventListener('langchange', function() { loadOffers(); });
     </script>
 </body>
 </html>
