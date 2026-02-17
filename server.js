@@ -461,6 +461,18 @@ function logAudit(userId, userType, action, details, ipAddress) {
 }
 app.locals.logAudit = logAudit;
 
+// ===================== HEALTH CHECK =====================
+
+app.get('/healthz', (req, res) => {
+    try {
+        const db = getDb();
+        db.prepare('SELECT 1').get();
+        res.json({ status: 'ok' });
+    } catch (e) {
+        res.status(500).json({ status: 'error', message: e.message });
+    }
+});
+
 // ===================== ERROR HANDLER =====================
 
 app.use((err, req, res, next) => {
