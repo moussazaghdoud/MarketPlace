@@ -5,13 +5,10 @@ const crypto = require('crypto');
 const { getDb } = require('../db/connection');
 const { generateToken, clientAuth } = require('../middleware/auth');
 const salesforce = require('../services/salesforce');
-const { sendVerification } = require('../services/email');
 
 const router = express.Router();
 
-const BASE_URL = process.env.BASE_URL
-    || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null)
-    || `http://localhost:${process.env.PORT || 3000}`;
+const RAINBOW_DOMAIN = process.env.RAINBOW_DOMAIN || 'https://sandbox.openrainbow.com';
 
 // POST /api/client/register - Step 1: email, name, password
 router.post('/register', (req, res) => {
@@ -33,10 +30,12 @@ router.post('/register', (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, 'pending')
     `).run(id, email, hashed, firstName, lastName, verificationToken);
 
-    // Send verification email
-    const verifyUrl = `${BASE_URL}/verify-email?token=${verificationToken}`;
-    sendVerification(email, { verifyUrl, firstName })
-        .catch(err => console.error('[Email] Verification send failed:', err.message));
+    // Send verification email via Rainbow sandbox API (same as "Start free" flow)
+    fetch(`${RAINBOW_DOMAIN}/api/rainbow/enduser/v1.0/notifications/emails/self-register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'accept': 'application/json' },
+        body: JSON.stringify({ email, lang: 'en' })
+    }).catch(err => console.error('[Rainbow] Verification email failed:', err.message));
 
     // Fire-and-forget: create Salesforce Lead
     console.log('[Salesforce] Attempting lead creation for:', email);
