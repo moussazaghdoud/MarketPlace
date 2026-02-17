@@ -761,7 +761,11 @@
         async function fetchPlans() {
             if (cachedPlans) return cachedPlans;
             const data = await api('/api/products/rainbow');
-            cachedPlans = data.plans || data || [];
+            let plans = data.plans || data || [];
+            if (plans && !Array.isArray(plans)) {
+                plans = Object.entries(plans).map(([key, val]) => ({ id: key, ...val }));
+            }
+            cachedPlans = plans;
             return cachedPlans;
         }
 
