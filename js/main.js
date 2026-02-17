@@ -171,12 +171,14 @@ function renderScreenshots(screenshots) {
 }
 
 function renderPricing(pricing) {
+    var grid = document.getElementById('pricing-grid');
+    if (!grid) return; // pricing section not on this page
+
     document.getElementById('pricing-heading').textContent = pricing.heading;
     document.getElementById('pricing-subheading').textContent = pricing.subheading;
 
     // Store plans globally for checkout
     window.PLANS = {};
-    var grid = document.getElementById('pricing-grid');
     grid.innerHTML = '';
 
     var checkSvg = '<svg class="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
@@ -315,7 +317,7 @@ function adjustLicenses(delta) {
 }
 
 function updatePrices() {
-    if (!window.PLANS) return;
+    if (!window.PLANS || !document.getElementById('license-count')) return;
     var count = getLicenseCount();
     var suffix = t('home.perMonthTotal', '/mo total');
     Object.keys(window.PLANS).forEach(function (key) {
