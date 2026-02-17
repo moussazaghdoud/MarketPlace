@@ -980,14 +980,17 @@ async function saveAdminUser(e, id) {
     var pw = document.getElementById('au-password').value;
     if (pw) body.password = pw;
     try {
+        var res;
         if (id) {
-            await apiFetch('/api/admin/users/'+id, { method:'PUT', body:body });
+            res = await apiFetch('/api/admin/users/'+id, { method:'PUT', body:body });
         } else {
             if (!pw) { showToast('Password required','error'); return; }
-            await apiFetch('/api/admin/users', { method:'POST', body:body });
+            res = await apiFetch('/api/admin/users', { method:'POST', body:body });
         }
+        var data = await res.json();
+        if (!res.ok || data.error) { showToast(data.error || 'Failed to save user','error'); return; }
         closeModal(); showToast('Admin user saved!'); loadAdminUsers();
-    } catch(e) { showToast('Failed to save user','error'); }
+    } catch(e) { showToast('Failed to save user: '+e.message,'error'); }
 }
 
 async function deleteAdminUser(id) {
