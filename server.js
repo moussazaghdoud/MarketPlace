@@ -401,6 +401,32 @@ app.post('/api/content', adminAuth, (req, res) => {
                     }
                 } catch (e) { /* skip malformed rows */ }
             }
+
+            // Also sync prices to the products table (Rainbow)
+            try {
+                const rainbowProduct = db.prepare("SELECT id, plans FROM products WHERE slug = 'rainbow'").get();
+                if (rainbowProduct) {
+                    const productPlans = JSON.parse(rainbowProduct.plans || '{}');
+                    let changed = false;
+                    for (const cp of savedPlans) {
+                        const key = cp.name.toLowerCase().replace(/\s+/g, '-');
+                        if (productPlans[key]) {
+                            if (productPlans[key].pricePerUser !== cp.pricePerUser) {
+                                productPlans[key].pricePerUser = cp.pricePerUser;
+                                productPlans[key].price = cp.price;
+                                changed = true;
+                            }
+                        }
+                    }
+                    if (changed) {
+                        db.prepare('UPDATE products SET plans = ?, updatedAt = datetime(?) WHERE id = ?')
+                            .run(JSON.stringify(productPlans), new Date().toISOString(), rainbowProduct.id);
+                        console.log('[Content Sync] Synced prices to products table for Rainbow');
+                    }
+                }
+            } catch (syncErr) {
+                console.error('[Content Sync] Product sync failed:', syncErr.message);
+            }
         }
 
         res.json({ success: true });
