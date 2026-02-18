@@ -303,17 +303,7 @@
             }
         }
 
-        // Build a lookup from content API translated plans (keyed by plan name lowercase)
-        function getContentTranslations() {
-            var map = {};
-            if (CONTENT_PRICING && CONTENT_PRICING.plans) {
-                CONTENT_PRICING.plans.forEach(function(cp) {
-                    var key = cp.name.toLowerCase().replace(/\s+/g, '-');
-                    map[key] = cp;
-                });
-            }
-            return map;
-        }
+
 
         function renderProductPlans(product) {
             PLANS = {};
@@ -339,27 +329,22 @@
                 grid.className = 'grid md:grid-cols-3 gap-6 max-w-4xl mx-auto';
             }
 
-            // For Collaboration (rainbow), overlay translated text from content API
-            var translations = (product.slug === 'rainbow') ? getContentTranslations() : {};
-
             var checkSvg = '<svg class="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
 
             planKeys.forEach(function(key) {
                 var p = plans[key];
-                var tr = translations[key] || {}; // translated fields if available
                 var planKey = key;
-                PLANS[planKey] = { name: tr.name || p.name, pricePerUser: p.pricePerUser || 0 };
+                PLANS[planKey] = { name: p.name, pricePerUser: p.pricePerUser || 0 };
 
-                // Merge: translated text wins over DB text
-                var name = tr.name || p.name;
-                var subtitle = tr.subtitle || p.subtitle || '';
-                // Price always comes from Products (admin), never from content translations
+                // All plan data comes from Products (admin)
+                var name = p.name;
+                var subtitle = p.subtitle || '';
                 var price = (p.pricePerUser > 0) ? p.pricePerUser.toFixed(2) : (p.price || 'Free');
                 var priceNote = p.priceNote || '';
-                var ctaText = tr.ctaText || p.ctaText || 'Get started';
-                var badge = tr.badge || p.badge || '';
-                var features = tr.features || p.features || [];
-                var highlighted = (tr.highlighted !== undefined) ? tr.highlighted : p.highlighted;
+                var ctaText = p.ctaText || 'Get started';
+                var badge = p.badge || '';
+                var features = p.features || [];
+                var highlighted = p.highlighted;
 
                 var card = document.createElement('div');
                 var borderClass = highlighted ? 'border-2 border-brand-500 relative' : 'border border-gray-200';
