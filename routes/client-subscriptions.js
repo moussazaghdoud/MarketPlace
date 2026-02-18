@@ -193,6 +193,38 @@ router.post('/:id/retry-payment', async (req, res) => {
     }
 });
 
+// POST /api/client/subscriptions/:id/confirm-payment — mark subscription active after successful payment
+router.post('/:id/confirm-payment', async (req, res) => {
+    const db = getDb();
+    const sub = db.prepare('SELECT * FROM subscriptions WHERE id = ? AND clientId = ?')
+        .get(req.params.id, req.client.id);
+    if (!sub) return res.status(404).json({ error: 'Subscription not found' });
+
+    if (sub.status === 'active') return res.json({ status: 'active' });
+
+    // Verify with Stripe that the subscription is actually paid
+    if (sub.stripeSubscriptionId && stripeService.isConfigured()) {
+        try {
+            const stripe = stripeService.getStripe();
+            const stripeSub = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
+            if (stripeSub.status === 'active' || stripeSub.status === 'trialing') {
+                db.prepare("UPDATE subscriptions SET status = 'active', updatedAt = datetime(?) WHERE id = ?")
+                    .run(new Date().toISOString(), req.params.id);
+                return res.json({ status: 'active' });
+            }
+            return res.json({ status: stripeSub.status });
+        } catch (err) {
+            console.error('[Confirm Payment] Stripe error:', err.message);
+            return res.status(400).json({ error: err.message });
+        }
+    }
+
+    // No Stripe — just activate
+    db.prepare("UPDATE subscriptions SET status = 'active', updatedAt = datetime(?) WHERE id = ?")
+        .run(new Date().toISOString(), req.params.id);
+    res.json({ status: 'active' });
+});
+
 // =============================================
 // License assignment endpoints
 // =============================================

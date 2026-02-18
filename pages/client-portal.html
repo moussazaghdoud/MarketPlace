@@ -862,11 +862,12 @@
             invalid: { color: '#EF4444' },
         };
 
-        async function openPaymentModal(clientSecret, publishableKey, planName, planPrice) {
+        async function openPaymentModal(clientSecret, publishableKey, planName, planPrice, subscriptionId) {
             openModal('modal-payment');
             document.getElementById('payment-errors').classList.add('hidden');
             document.getElementById('payment-summary').innerHTML =
                 `<strong>${planName}</strong>` + (planPrice ? ` &mdash; ${planPrice}` : '');
+            window._paymentSubscriptionId = subscriptionId || null;
 
             if (!paymentStripeInstance) {
                 paymentStripeInstance = Stripe(publishableKey || stripe?._apiKey);
@@ -921,6 +922,12 @@
                     }).catch(() => {}); // fire-and-forget
                 }
 
+                // Confirm payment on server — update subscription status to active
+                if (window._paymentSubscriptionId) {
+                    await api(`/api/client/subscriptions/${window._paymentSubscriptionId}/confirm-payment`, 'POST')
+                        .catch(() => {}); // also handled by webhook as fallback
+                }
+
                 closeModal('modal-payment');
                 showToast(t('portal.paymentSuccess','Payment successful! Subscription is now active.'));
                 navigateTo('subscriptions');
@@ -946,7 +953,7 @@
                     return;
                 }
                 if (result.clientSecret) {
-                    await openPaymentModal(result.clientSecret, result.publishableKey, result.planName || 'Subscription', '');
+                    await openPaymentModal(result.clientSecret, result.publishableKey, result.planName || 'Subscription', '', subscriptionId);
                 } else {
                     showToast('Unable to process payment. Please contact support.', 'error');
                 }
