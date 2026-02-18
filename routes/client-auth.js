@@ -132,12 +132,30 @@ router.post('/verify-code', async (req, res) => {
                 console.log('[Rainbow] User already exists in Rainbow — activating local account for:', email);
                 // Fall through to activate the local account below
             } else {
-                // Extract a human-readable error message
+                // Extract a human-readable error message from Rainbow
                 let errMsg = 'Invalid verification code';
-                if (typeof rbData.errorDetails === 'string') errMsg = rbData.errorDetails;
-                else if (typeof rbData.errorMsg === 'string') errMsg = rbData.errorMsg;
-                else if (rbData.errorDetails && typeof rbData.errorDetails === 'object') errMsg = rbData.errorDetails.description || rbData.errorDetails.msg || JSON.stringify(rbData.errorDetails);
-                else if (rbData.error && typeof rbData.error === 'string') errMsg = rbData.error;
+                // Prioritize detailed error info over generic status text
+                if (rbData.errorDetails && typeof rbData.errorDetails === 'object') {
+                    errMsg = rbData.errorDetails.description || rbData.errorDetails.msg || rbData.errorDetails.message || JSON.stringify(rbData.errorDetails);
+                } else if (typeof rbData.errorDetails === 'string' && rbData.errorDetails !== 'Bad Request') {
+                    errMsg = rbData.errorDetails;
+                } else if (rbData.details && typeof rbData.details === 'string') {
+                    errMsg = rbData.details;
+                } else if (typeof rbData.errorMsg === 'string' && rbData.errorMsg !== 'Bad Request') {
+                    errMsg = rbData.errorMsg;
+                } else if (rbData.error && typeof rbData.error === 'string' && rbData.error !== 'Bad Request') {
+                    errMsg = rbData.error;
+                }
+                // If still generic, try to give a better hint
+                if (errMsg === 'Invalid verification code' || errMsg === 'Bad Request') {
+                    const fullResp = JSON.stringify(rbData);
+                    if (fullResp.toLowerCase().includes('password')) {
+                        errMsg = 'Password does not meet requirements. Use at least 8 characters with uppercase, lowercase, number and special character.';
+                    } else if (fullResp.toLowerCase().includes('token') || fullResp.toLowerCase().includes('code')) {
+                        errMsg = 'Invalid or expired verification code. Please try again.';
+                    }
+                }
+                console.log('[Rainbow] Verify error detail:', errMsg, '| Full response:', JSON.stringify(rbData));
                 return res.status(400).json({ error: errMsg });
             }
         }
