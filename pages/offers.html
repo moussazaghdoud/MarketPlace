@@ -353,9 +353,9 @@
                 // Merge: translated text wins over DB text
                 var name = tr.name || p.name;
                 var subtitle = tr.subtitle || p.subtitle || '';
-                // Always derive display price from pricePerUser (the admin's numeric value) to stay in sync
-                var price = (p.pricePerUser > 0) ? p.pricePerUser.toFixed(2) : (tr.price || p.price || 'Free');
-                var priceNote = tr.priceNote || p.priceNote || '';
+                // Price always comes from Products (admin), never from content translations
+                var price = (p.pricePerUser > 0) ? p.pricePerUser.toFixed(2) : (p.price || 'Free');
+                var priceNote = p.priceNote || '';
                 var ctaText = tr.ctaText || p.ctaText || 'Get started';
                 var badge = tr.badge || p.badge || '';
                 var features = tr.features || p.features || [];

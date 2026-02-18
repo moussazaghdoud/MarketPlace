@@ -382,7 +382,7 @@ app.post('/api/content', adminAuth, (req, res) => {
         const upsert = db.prepare('INSERT INTO content_store (lang, data, updatedAt) VALUES (?, ?, datetime(\'now\')) ON CONFLICT(lang) DO UPDATE SET data = excluded.data, updatedAt = excluded.updatedAt');
         upsert.run(lang, data);
 
-        // Sync pricing values (price, pricePerUser, highlighted, badge) across all languages
+        // Sync non-price content values (highlighted, badge, ctaLink) across all languages
         if (req.body.pricing && req.body.pricing.plans) {
             const savedPlans = req.body.pricing.plans;
             const allRows = db.prepare('SELECT lang, data FROM content_store WHERE lang != ?').all(lang);
@@ -391,8 +391,6 @@ app.post('/api/content', adminAuth, (req, res) => {
                     const other = JSON.parse(row.data);
                     if (other.pricing && other.pricing.plans && other.pricing.plans.length === savedPlans.length) {
                         for (let i = 0; i < savedPlans.length; i++) {
-                            other.pricing.plans[i].price = savedPlans[i].price;
-                            other.pricing.plans[i].pricePerUser = savedPlans[i].pricePerUser;
                             other.pricing.plans[i].highlighted = savedPlans[i].highlighted;
                             if (savedPlans[i].badge !== undefined) other.pricing.plans[i].badge = savedPlans[i].badge;
                             if (savedPlans[i].ctaLink !== undefined) other.pricing.plans[i].ctaLink = savedPlans[i].ctaLink;
@@ -400,32 +398,6 @@ app.post('/api/content', adminAuth, (req, res) => {
                         upsert.run(row.lang, JSON.stringify(other, null, 2));
                     }
                 } catch (e) { /* skip malformed rows */ }
-            }
-
-            // Also sync prices to the products table (Rainbow)
-            try {
-                const rainbowProduct = db.prepare("SELECT id, plans FROM products WHERE slug = 'rainbow'").get();
-                if (rainbowProduct) {
-                    const productPlans = JSON.parse(rainbowProduct.plans || '{}');
-                    let changed = false;
-                    for (const cp of savedPlans) {
-                        const key = cp.name.toLowerCase().replace(/\s+/g, '-');
-                        if (productPlans[key]) {
-                            if (productPlans[key].pricePerUser !== cp.pricePerUser) {
-                                productPlans[key].pricePerUser = cp.pricePerUser;
-                                productPlans[key].price = cp.price;
-                                changed = true;
-                            }
-                        }
-                    }
-                    if (changed) {
-                        db.prepare('UPDATE products SET plans = ?, updatedAt = datetime(?) WHERE id = ?')
-                            .run(JSON.stringify(productPlans), new Date().toISOString(), rainbowProduct.id);
-                        console.log('[Content Sync] Synced prices to products table for Rainbow');
-                    }
-                }
-            } catch (syncErr) {
-                console.error('[Content Sync] Product sync failed:', syncErr.message);
             }
         }
 

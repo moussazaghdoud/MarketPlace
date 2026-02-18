@@ -86,36 +86,6 @@ router.put('/:id', async (req, res) => {
             }
         }
 
-        // Sync prices to content_store so Offers page content translations stay consistent
-        if (slug === 'rainbow' && plans && typeof plans === 'object') {
-            try {
-                const allLangs = db.prepare('SELECT lang, data FROM content_store').all();
-                for (const row of allLangs) {
-                    const content = JSON.parse(row.data);
-                    if (content.pricing && content.pricing.plans) {
-                        let changed = false;
-                        for (const cp of content.pricing.plans) {
-                            const key = cp.name.toLowerCase().replace(/\s+/g, '-');
-                            if (plans[key]) {
-                                if (cp.pricePerUser !== plans[key].pricePerUser) {
-                                    cp.pricePerUser = plans[key].pricePerUser;
-                                    cp.price = plans[key].pricePerUser > 0 ? plans[key].pricePerUser.toFixed(2) : cp.price;
-                                    changed = true;
-                                }
-                            }
-                        }
-                        if (changed) {
-                            db.prepare('UPDATE content_store SET data = ?, updatedAt = datetime(?) WHERE lang = ?')
-                                .run(JSON.stringify(content, null, 2), new Date().toISOString(), row.lang);
-                        }
-                    }
-                }
-                console.log(`[Product Sync] Synced prices to content_store for "${name}"`);
-            } catch (syncErr) {
-                console.error('[Product Sync] Content store sync failed:', syncErr.message);
-            }
-        }
-
         res.json({ success: true });
     } catch (err) {
         console.error('[Admin Products] PUT error:', err);
