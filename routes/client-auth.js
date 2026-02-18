@@ -215,12 +215,12 @@ router.post('/login', (req, res) => {
 });
 
 // POST /api/client/forgot-password
-router.post('/forgot-password', (req, res) => {
+router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
 
     const db = getDb();
-    const client = db.prepare('SELECT id FROM clients WHERE email = ?').get(email);
+    const client = db.prepare('SELECT id, firstName FROM clients WHERE email = ?').get(email);
     if (!client) {
         // Don't reveal if email exists
         return res.json({ success: true, message: 'If the email exists, a reset link has been sent.' });
@@ -230,8 +230,14 @@ router.post('/forgot-password', (req, res) => {
     db.prepare('UPDATE clients SET resetToken = ?, resetTokenExpiry = ? WHERE id = ?')
         .run(resetToken, expiry, client.id);
 
-    // In production, send email with reset link
-    res.json({ success: true, message: 'If the email exists, a reset link has been sent.', resetToken });
+    // Send password reset email
+    const emailService = require('../services/email');
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
+    emailService.sendPasswordReset(email, { resetUrl, firstName: client.firstName || '' })
+        .catch(err => console.error('[Email] Password reset send failed:', err.message));
+
+    res.json({ success: true, message: 'If the email exists, a reset link has been sent.' });
 });
 
 // POST /api/client/reset-password

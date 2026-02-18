@@ -5,23 +5,48 @@ const { v4: uuidv4 } = require('uuid');
 const { getDb } = require('../db/connection');
 
 let transporter = null;
+let etherealReady = null; // promise for ethereal setup
 
 function getTransporter() {
     if (transporter) return transporter;
-    if (!process.env.SMTP_HOST) {
-        console.log('SMTP not configured — emails will be logged only');
-        return null;
+    if (process.env.SMTP_HOST) {
+        transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
+        return transporter;
     }
-    transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS
-        }
-    });
-    return transporter;
+    return null;
+}
+
+// Create Ethereal test account as fallback when no SMTP is configured
+async function getOrCreateEtherealTransporter() {
+    if (transporter) return transporter;
+    if (process.env.SMTP_HOST) return getTransporter();
+
+    if (!etherealReady) {
+        etherealReady = nodemailer.createTestAccount().then(account => {
+            transporter = nodemailer.createTransport({
+                host: 'smtp.ethereal.email',
+                port: 587,
+                secure: false,
+                auth: { user: account.user, pass: account.pass }
+            });
+            console.log('[Email] Ethereal test account created:', account.user);
+            console.log('[Email] View sent emails at: https://ethereal.email/login');
+            console.log('[Email] Login:', account.user, '/ Password:', account.pass);
+            return transporter;
+        }).catch(err => {
+            console.error('[Email] Ethereal setup failed:', err.message);
+            return null;
+        });
+    }
+    return etherealReady;
 }
 
 function loadTemplate(templateName, variables) {
@@ -49,22 +74,31 @@ async function sendEmail({ to, subject, templateName, variables, body }) {
     const db = getDb();
     const logId = uuidv4();
     const html = templateName ? loadTemplate(templateName, { ...variables, subject }) : `<p>${body}</p>`;
-    const transport = getTransporter();
 
+    // Use configured SMTP or fall back to Ethereal test account
+    let transport = getTransporter();
     if (!transport) {
-        console.log(`[EMAIL] To: ${to} | Subject: ${subject}`);
+        transport = await getOrCreateEtherealTransporter();
+    }
+    if (!transport) {
+        console.log(`[EMAIL] No transport available. To: ${to} | Subject: ${subject}`);
         db.prepare('INSERT INTO email_log (id, toEmail, subject, templateName, status) VALUES (?, ?, ?, ?, ?)')
             .run(logId, to, subject, templateName || 'inline', 'logged');
         return { success: true, logged: true };
     }
 
     try {
-        await transport.sendMail({
+        const info = await transport.sendMail({
             from: process.env.SMTP_FROM || 'noreply@rainbow-portal.com',
             to,
             subject,
             html
         });
+        // Log Ethereal preview URL if available
+        const previewUrl = nodemailer.getTestMessageUrl(info);
+        if (previewUrl) {
+            console.log(`[EMAIL] Preview URL: ${previewUrl}`);
+        }
         db.prepare('INSERT INTO email_log (id, toEmail, subject, templateName, status) VALUES (?, ?, ?, ?, ?)')
             .run(logId, to, subject, templateName || 'inline', 'sent');
         return { success: true };
