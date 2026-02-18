@@ -1035,7 +1035,20 @@
         // =============================================
         // Retry payment for pending subscription
         // =============================================
+        let _retryPaymentBusy = false;
         async function retryPayment(subscriptionId) {
+            if (_retryPaymentBusy) return;
+            _retryPaymentBusy = true;
+
+            // Find and disable the Buy button that was clicked
+            const btn = event && event.target ? event.target.closest('button') : null;
+            let origHtml = '';
+            if (btn) {
+                origHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<svg class="w-4 h-4 inline animate-spin -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>' + t('portal.processing','Processing...');
+            }
+
             try {
                 const result = await api(`/api/client/subscriptions/${subscriptionId}/retry-payment`, 'POST');
                 if (result.status === 'active') {
@@ -1050,6 +1063,12 @@
                 }
             } catch (err) {
                 showToast(err.message, 'error');
+            } finally {
+                _retryPaymentBusy = false;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
             }
         }
 
