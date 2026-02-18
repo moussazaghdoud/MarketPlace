@@ -359,10 +359,31 @@
     "paymentFailed": "El pago ha fallado. Por favor, inténtelo de nuevo."
   },
   "offers": {
-    "collaborationDesc": "Plataforma de comunicación unificada — mensajería, vídeo, telefonía.",
-    "webinarDesc": "Organice eventos en línea a gran escala con hasta 10.000 participantes.",
-    "smartHotelDesc": "Experiencia del huésped y operaciones hoteleras impulsadas por IA.",
-    "plansComing": "Planes disponibles próximamente."
+    "collaborationDesc": "Plataforma de comunicaci\u00f3n unificada \u2014 mensajer\u00eda, v\u00eddeo, telefon\u00eda.",
+    "webinarDesc": "Organice eventos en l\u00ednea a gran escala con hasta 10.000 participantes.",
+    "smartHotelDesc": "Experiencia del hu\u00e9sped y operaciones hoteleras impulsadas por IA.",
+    "plansComing": "Planes disponibles pr\u00f3ximamente.",
+    "essential": {
+      "name": "Essential",
+      "subtitle": "Para empezar",
+      "priceNote": "hasta 15 usuarios",
+      "ctaText": "Empezar gratis",
+      "features": ["Audio y v\u00eddeo HD (1:1)", "Mensajer\u00eda instant\u00e1nea", "Compartir archivos (1 GB)", "Integraci\u00f3n de calendario", "App m\u00f3vil iOS y Android", "Soporte comunitario"]
+    },
+    "business": {
+      "name": "Business",
+      "subtitle": "El m\u00e1s popular",
+      "priceNote": "/usuario/mes",
+      "ctaText": "Prueba gratuita 30 d\u00edas",
+      "features": ["Todo de Essential +", "Conferencia hasta 100 participantes", "Grabaci\u00f3n de reuniones", "Pantalla compartida avanzada", "10 GB almacenamiento/usuario", "Integraci\u00f3n CRM y Office 365", "Soporte prioritario 24/7", "Administraci\u00f3n centralizada"]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "subtitle": "A medida",
+      "priceNote": "/usuario/mes",
+      "ctaText": "Prueba gratuita 30 d\u00edas",
+      "features": ["Todo de Business +", "Conferencia hasta 1000 participantes", "Webinars y eventos", "Telefon\u00eda cloud (SIP/PSTN)", "Almacenamiento ilimitado", "API y SDK para desarrolladores", "SLA 99,99% garantizado", "Customer Success Manager dedicado", "SSO y seguridad avanzada"]
+    }
   },
   "lang": {
     "en": "English",

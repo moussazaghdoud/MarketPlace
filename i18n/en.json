@@ -375,7 +375,28 @@
     "collaborationDesc": "Unified communication platform — messaging, video, telephony.",
     "webinarDesc": "Host large-scale online events with up to 10,000 participants.",
     "smartHotelDesc": "AI-powered guest experience and hotel operations platform.",
-    "plansComing": "Plans coming soon."
+    "plansComing": "Plans coming soon.",
+    "essential": {
+      "name": "Essential",
+      "subtitle": "To get started",
+      "priceNote": "up to 15 users",
+      "ctaText": "Start for free",
+      "features": ["HD Audio & Video (1:1)", "Instant messaging", "File sharing (1 GB)", "Calendar integration", "iOS & Android mobile app", "Community support"]
+    },
+    "business": {
+      "name": "Business",
+      "subtitle": "Most popular",
+      "priceNote": "/user/month",
+      "ctaText": "Free 30-day trial",
+      "features": ["Everything in Essential +", "Conference up to 100 participants", "Meeting recording", "Advanced screen sharing", "10 GB storage/user", "CRM & Office 365 integration", "24/7 priority support", "Centralized administration"]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "subtitle": "Custom",
+      "priceNote": "/user/month",
+      "ctaText": "Free 30-day trial",
+      "features": ["Everything in Business +", "Conference up to 1000 participants", "Webinars & events", "Cloud telephony (SIP/PSTN)", "Unlimited storage", "Developer API & SDK", "99.99% SLA guaranteed", "Dedicated Customer Success Manager", "SSO & advanced security"]
+    }
   },
   "lang": {
     "en": "English",

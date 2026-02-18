@@ -359,10 +359,31 @@
     "paymentFailed": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut."
   },
   "offers": {
-    "collaborationDesc": "Einheitliche Kommunikationsplattform — Messaging, Video, Telefonie.",
+    "collaborationDesc": "Einheitliche Kommunikationsplattform \u2014 Messaging, Video, Telefonie.",
     "webinarDesc": "Veranstalten Sie Online-Events mit bis zu 10.000 Teilnehmern.",
-    "smartHotelDesc": "KI-gestützte Gästeerfahrung und Hotelbetriebsplattform.",
-    "plansComing": "Pläne demnächst verfügbar."
+    "smartHotelDesc": "KI-gest\u00fctzte G\u00e4steerfahrung und Hotelbetriebsplattform.",
+    "plansComing": "Pl\u00e4ne demn\u00e4chst verf\u00fcgbar.",
+    "essential": {
+      "name": "Essential",
+      "subtitle": "Zum Einstieg",
+      "priceNote": "bis zu 15 Benutzer",
+      "ctaText": "Kostenlos starten",
+      "features": ["HD Audio & Video (1:1)", "Instant Messaging", "Dateifreigabe (1 GB)", "Kalenderintegration", "iOS & Android App", "Community-Support"]
+    },
+    "business": {
+      "name": "Business",
+      "subtitle": "Am beliebtesten",
+      "priceNote": "/Benutzer/Monat",
+      "ctaText": "30 Tage kostenlos testen",
+      "features": ["Alles aus Essential +", "Konferenz bis 100 Teilnehmer", "Aufzeichnung von Meetings", "Erweitertes Bildschirmteilen", "10 GB Speicher/Benutzer", "CRM & Office 365 Integration", "24/7 Priority-Support", "Zentralisierte Verwaltung"]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "subtitle": "Ma\u00dfgeschneidert",
+      "priceNote": "/Benutzer/Monat",
+      "ctaText": "30 Tage kostenlos testen",
+      "features": ["Alles aus Business +", "Konferenz bis 1000 Teilnehmer", "Webinare & Events", "Cloud-Telefonie (SIP/PSTN)", "Unbegrenzter Speicher", "Entwickler API & SDK", "99,99% SLA garantiert", "Dedizierter Customer Success Manager", "SSO & erweiterte Sicherheit"]
+    }
   },
   "lang": {
     "en": "English",

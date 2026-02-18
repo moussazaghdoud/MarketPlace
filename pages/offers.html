@@ -334,17 +334,19 @@
             planKeys.forEach(function(key) {
                 var p = plans[key];
                 var planKey = key;
-                PLANS[planKey] = { name: p.name, pricePerUser: p.pricePerUser || 0 };
 
-                // All plan data comes from Products (admin)
-                var name = p.name;
-                var subtitle = p.subtitle || '';
+                // i18n: use translated text from i18n files, fall back to product data (admin)
+                var i18nPlan = t('offers.' + key, null);
+                var name = (i18nPlan && i18nPlan.name) ? i18nPlan.name : p.name;
+                var subtitle = (i18nPlan && i18nPlan.subtitle) ? i18nPlan.subtitle : (p.subtitle || '');
+                var priceNote = (i18nPlan && i18nPlan.priceNote) ? i18nPlan.priceNote : (p.priceNote || '');
+                var ctaText = (i18nPlan && i18nPlan.ctaText) ? i18nPlan.ctaText : (p.ctaText || 'Get started');
+                var features = (i18nPlan && i18nPlan.features) ? i18nPlan.features : (p.features || []);
+                // Price always from product (admin), never translated
                 var price = (p.pricePerUser > 0) ? p.pricePerUser.toFixed(2) : (p.price || 'Free');
-                var priceNote = p.priceNote || '';
-                var ctaText = p.ctaText || 'Get started';
                 var badge = p.badge || '';
-                var features = p.features || [];
                 var highlighted = p.highlighted;
+                PLANS[planKey] = { name: name, pricePerUser: p.pricePerUser || 0 };
 
                 var card = document.createElement('div');
                 var borderClass = highlighted ? 'border-2 border-brand-500 relative' : 'border border-gray-200';
