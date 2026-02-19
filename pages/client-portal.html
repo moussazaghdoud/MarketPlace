@@ -1750,8 +1750,17 @@
             if (planFromUrl) {
                 // Clean URL without reloading
                 window.history.replaceState({}, '', '/portal');
-                // Auto-create subscription — user already chose plan on offers page
-                navigateTo('subscriptions');
+                // Show a loading state while we check company info / create subscription
+                document.getElementById('main-content').innerHTML = `
+                    <div class="flex items-center justify-center py-20">
+                        <div class="text-center">
+                            <svg class="animate-spin h-8 w-8 text-rainbow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <p class="text-sm text-gray-500">${t('portal.preparingSubscription','Preparing your subscription...')}</p>
+                        </div>
+                    </div>`;
                 try {
                     const plans = await fetchPlans();
                     const match = plans.find(p =>
@@ -1772,10 +1781,12 @@
                             await doCreateSubscription(match.id, lc);
                         }
                     } else {
+                        navigateTo('subscriptions');
                         await openNewSubscriptionModal(planFromUrl, licensesFromUrl);
                     }
                 } catch (err) {
                     showToast(err.message, 'error');
+                    navigateTo('subscriptions');
                     await openNewSubscriptionModal(planFromUrl, licensesFromUrl);
                 }
             } else {
