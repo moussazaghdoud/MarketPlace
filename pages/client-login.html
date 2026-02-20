@@ -79,6 +79,8 @@
             <div class="hidden md:flex items-center gap-6">
                 <a href="/" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.home">Home</a>
                 <a href="/products" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.product">Product</a>
+                <a href="/solutions" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.solutions">Solutions</a>
+                <a href="/industries" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.industries">Industries</a>
                 <a href="/offers" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.offers">Offers</a>
                 <a href="/blog" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.blog">Blog</a>
                 <a href="/reviews" class="text-sm text-gray-500 hover:text-gray-900 transition-colors" data-i18n="nav.reviews">Reviews</a>
@@ -100,6 +102,8 @@
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
             <a href="/" class="block text-sm text-gray-600 py-2" data-i18n="nav.home">Home</a>
             <a href="/products" class="block text-sm text-gray-600 py-2" data-i18n="nav.product">Product</a>
+            <a href="/solutions" class="block text-sm text-gray-600 py-2" data-i18n="nav.solutions">Solutions</a>
+            <a href="/industries" class="block text-sm text-gray-600 py-2" data-i18n="nav.industries">Industries</a>
             <a href="/offers" class="block text-sm text-gray-600 py-2" data-i18n="nav.offers">Offers</a>
             <a href="/blog" class="block text-sm text-gray-600 py-2" data-i18n="nav.blog">Blog</a>
             <a href="/reviews" class="block text-sm text-gray-600 py-2" data-i18n="nav.reviews">Reviews</a>
@@ -186,11 +190,17 @@
                             <input type="password" id="reg-password" required placeholder="Min. 12 characters" data-i18n-placeholder="login.passwordMinChars"
                                 minlength="12"
                                 class="input-focus w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none transition-all pr-10">
-                            <p class="text-xs text-gray-400 mt-1" data-i18n="login.passwordHint">12-64 chars, with uppercase, lowercase, number &amp; special character</p>
                             <button type="button" onclick="togglePassword('reg-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 <svg class="w-5 h-5 eye-off" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
                                 <svg class="w-5 h-5 eye-on hidden" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </button>
+                        </div>
+                        <div id="pw-checklist" class="hidden mt-2 space-y-1">
+                            <p id="pw-len" class="text-xs flex items-center gap-1.5"><span class="pw-icon">&#9675;</span> 12+ characters</p>
+                            <p id="pw-lower" class="text-xs flex items-center gap-1.5"><span class="pw-icon">&#9675;</span> 1 lowercase letter</p>
+                            <p id="pw-upper" class="text-xs flex items-center gap-1.5"><span class="pw-icon">&#9675;</span> 1 uppercase letter</p>
+                            <p id="pw-num" class="text-xs flex items-center gap-1.5"><span class="pw-icon">&#9675;</span> 1 number</p>
+                            <p id="pw-special" class="text-xs flex items-center gap-1.5"><span class="pw-icon">&#9675;</span> 1 special character</p>
                         </div>
                     </div>
                     <button type="submit" id="btn-register"
@@ -341,6 +351,33 @@
                 eyeOn.classList.add('hidden');
             }
         }
+
+        // =============================================
+        // Live password checklist
+        // =============================================
+        (function() {
+            const pwInput = document.getElementById('reg-password');
+            if (!pwInput) return;
+            const checklist = document.getElementById('pw-checklist');
+            const rules = [
+                { id: 'pw-len',     test: pw => pw.length >= 12 },
+                { id: 'pw-lower',   test: pw => /[a-z]/.test(pw) },
+                { id: 'pw-upper',   test: pw => /[A-Z]/.test(pw) },
+                { id: 'pw-num',     test: pw => /[0-9]/.test(pw) },
+                { id: 'pw-special', test: pw => /[^a-zA-Z0-9]/.test(pw) }
+            ];
+            pwInput.addEventListener('focus', () => checklist.classList.remove('hidden'));
+            pwInput.addEventListener('input', () => {
+                const pw = pwInput.value;
+                checklist.classList.remove('hidden');
+                rules.forEach(r => {
+                    const el = document.getElementById(r.id);
+                    const pass = r.test(pw);
+                    el.querySelector('.pw-icon').innerHTML = pass ? '&#10003;' : '&#9675;';
+                    el.className = 'text-xs flex items-center gap-1.5 ' + (pass ? 'text-green-600' : 'text-gray-400');
+                });
+            });
+        })();
 
         // =============================================
         // Message display
