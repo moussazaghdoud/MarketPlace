@@ -51,16 +51,14 @@ try {
             });
         }
 
-        // Copy default i18n files if not yet present on volume
+        // Always sync i18n files from app bundle to volume (developer-managed, not user data)
         const srcI18n = path.join(__dirname, 'i18n');
         if (fs.existsSync(srcI18n)) {
             fs.readdirSync(srcI18n).forEach(f => {
                 if (f.endsWith('.json')) {
                     const dest = path.join(I18N_DIR, f);
-                    if (!fs.existsSync(dest)) {
-                        fs.copyFileSync(path.join(srcI18n, f), dest);
-                        console.log('[Volume] Copied', f);
-                    }
+                    fs.copyFileSync(path.join(srcI18n, f), dest);
+                    console.log('[Volume] Synced i18n/', f);
                 }
             });
         }
