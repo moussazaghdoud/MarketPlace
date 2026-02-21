@@ -187,7 +187,7 @@
     "lastNamePlaceholder": "Mustermann",
     "confirmPasswordLabel": "Passwort bestätigen",
     "confirmPasswordPlaceholder": "Passwort erneut eingeben",
-    "passwordMinChars": "Mind. 8 Zeichen",
+    "passwordMinChars": "Mind. 12 Zeichen",
     "createAccountBtn": "Konto erstellen",
     "creatingAccount": "Konto wird erstellt...",
     "accountCreated": "Konto erfolgreich erstellt! Weiterleitung...",

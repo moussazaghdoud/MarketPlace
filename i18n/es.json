@@ -187,7 +187,7 @@
     "lastNamePlaceholder": "Pérez",
     "confirmPasswordLabel": "Confirmar contraseña",
     "confirmPasswordPlaceholder": "Vuelva a introducir su contraseña",
-    "passwordMinChars": "Mín. 8 caracteres",
+    "passwordMinChars": "Mín. 12 caracteres",
     "createAccountBtn": "Crear mi cuenta",
     "creatingAccount": "Creando cuenta...",
     "accountCreated": "¡Cuenta creada con éxito! Redirigiendo...",

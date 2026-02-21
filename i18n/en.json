@@ -191,7 +191,7 @@
     "lastNamePlaceholder": "Smith",
     "confirmPasswordLabel": "Confirm password",
     "confirmPasswordPlaceholder": "Re-enter your password",
-    "passwordMinChars": "Min. 8 characters",
+    "passwordMinChars": "Min. 12 characters",
     "createAccountBtn": "Create my account",
     "creatingAccount": "Creating account...",
     "accountCreated": "Account created successfully! Redirecting...",

@@ -187,7 +187,7 @@
     "lastNamePlaceholder": "Rossi",
     "confirmPasswordLabel": "Conferma password",
     "confirmPasswordPlaceholder": "Reinserisci la tua password",
-    "passwordMinChars": "Min. 8 caratteri",
+    "passwordMinChars": "Min. 12 caratteri",
     "createAccountBtn": "Crea il mio account",
     "creatingAccount": "Creazione account...",
     "accountCreated": "Account creato con successo! Reindirizzamento...",
