@@ -38,6 +38,8 @@
         table { width:100%; border-collapse:collapse; font-size:0.875rem; }
         thead th { text-align:left; padding:0.75rem 1rem; background:#f9fafb; border-bottom:1px solid #e5e7eb; font-weight:600; color:#374151; white-space:nowrap; }
         tbody td { padding:0.75rem 1rem; border-bottom:1px solid #f3f4f6; color:#4b5563; }
+        td.actions-cell { white-space:nowrap; }
+        td.actions-cell .btn { display:inline-block; margin-right:0.25rem; }
         tbody tr:hover { background:#f9fafb; }
         .badge { display:inline-block; padding:0.125rem 0.5rem; border-radius:9999px; font-size:0.75rem; font-weight:500; }
         .badge-green { background:#dcfce7; color:#166534; }
@@ -931,7 +933,7 @@ function renderAdminUsers() {
             '<td>'+esc(u.email)+'</td>' +
             '<td><span class="badge badge-blue">'+esc(u.role)+'</span></td>' +
             '<td>'+formatDate(u.createdAt)+'</td>' +
-            '<td class="space-x-2">' +
+            '<td class="actions-cell">' +
                 '<button class="btn btn-secondary btn-sm" onclick="openAdminUserModal(\''+u.id+'\')">Edit</button>' +
                 '<button class="btn btn-danger btn-sm" onclick="deleteAdminUser(\''+u.id+'\')">Delete</button>' +
             '</td></tr>';
@@ -1021,7 +1023,7 @@ function renderClients() {
             '<td>'+esc(c.company||'-')+'</td>' +
             '<td>'+statusBadge(c.status)+'</td>' +
             '<td>'+formatDate(c.createdAt)+'</td>' +
-            '<td class="space-x-2">' +
+            '<td class="actions-cell">' +
                 '<button class="btn btn-secondary btn-sm" onclick="viewClient(\''+c.id+'\')">View</button>' +
                 '<button class="btn btn-secondary btn-sm" onclick="openEditClientModal(\''+c.id+'\')">Edit</button>' +
                 '<button class="btn btn-danger btn-sm" onclick="deleteClient(\''+c.id+'\')">Delete</button>' +
@@ -1361,7 +1363,7 @@ function renderArticles() {
             '<td>'+esc(a.categoryName||'-')+'</td>' +
             '<td>'+statusBadge(a.status)+'</td>' +
             '<td>'+formatDate(a.publishedAt)+'</td>' +
-            '<td class="space-x-2">' +
+            '<td class="actions-cell">' +
                 '<button class="btn btn-secondary btn-sm" onclick="openArticleModal(\''+a.id+'\')">Edit</button>' +
                 '<button class="btn btn-danger btn-sm" onclick="deleteArticle(\''+a.id+'\')">Delete</button>' +
             '</td></tr>';
@@ -1437,7 +1439,7 @@ function renderCategories() {
         return '<tr>' +
             '<td class="font-medium text-gray-900">'+esc(c.name)+'</td>' +
             '<td>'+esc(c.slug)+'</td>' +
-            '<td class="space-x-2">' +
+            '<td class="actions-cell">' +
                 '<button class="btn btn-secondary btn-sm" onclick="openCategoryModal(\''+c.id+'\')">Edit</button>' +
                 '<button class="btn btn-danger btn-sm" onclick="deleteCategory(\''+c.id+'\')">Delete</button>' +
             '</td></tr>';
@@ -1501,7 +1503,7 @@ function renderReviews() {
             '<td>'+stars+'</td>' +
             '<td class="max-w-xs truncate">'+esc(r.content)+'</td>' +
             '<td>'+(r.isApproved?'<span class="badge badge-green">Yes</span>':'<span class="badge badge-yellow">No</span>')+'</td>' +
-            '<td class="space-x-2">' +
+            '<td class="actions-cell">' +
                 '<button class="btn btn-secondary btn-sm" onclick="openReviewModal(\''+r.id+'\')">Edit</button>' +
                 (r.isApproved ?
                     '<button class="btn btn-secondary btn-sm" onclick="toggleReviewApproval(\''+r.id+'\',false)">Unapprove</button>' :
@@ -1589,7 +1591,7 @@ function renderContacts() {
             '<td class="max-w-xs truncate">'+esc(c.subject||c.message||'-')+'</td>' +
             '<td>'+statusBadge(c.status)+'</td>' +
             '<td>'+formatDate(c.createdAt)+'</td>' +
-            '<td class="space-x-2">' +
+            '<td class="actions-cell">' +
                 '<button class="btn btn-secondary btn-sm" onclick="openContactModal(\''+c.id+'\')">View / Update</button>' +
                 '<button class="btn btn-danger btn-sm" onclick="deleteContact(\''+c.id+'\')">Delete</button>' +
             '</td></tr>';
