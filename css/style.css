@@ -45,6 +45,61 @@ input[type="number"] {
     transform: translateY(0);
 }
 
+/* Nav dropdowns */
+.nav-dropdown {
+    position: relative;
+}
+.nav-dropdown > a {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+.nav-dropdown > a .chevron {
+    transition: transform 0.2s;
+}
+.nav-dropdown:hover > a .chevron {
+    transform: rotate(180deg);
+}
+.nav-dropdown .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    min-width: 220px;
+    padding: 6px 0;
+    margin-top: 8px;
+    z-index: 100;
+}
+.nav-dropdown:hover .dropdown-menu {
+    display: block;
+}
+.dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+    color: #4b5563;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+}
+.dropdown-menu a:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Mobile sub-menu */
+.mobile-submenu {
+    padding-left: 1rem;
+}
+.mobile-submenu a {
+    font-size: 0.8125rem;
+    color: #6b7280;
+}
+
 ::selection {
     background: rgba(79, 109, 245, 0.15);
 }
