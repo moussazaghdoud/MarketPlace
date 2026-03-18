@@ -120,7 +120,78 @@ function seed() {
     }
 
     // Seed Rainbow Webinar product
-    const existingWebinar = db.prepare('SELECT id FROM products WHERE slug = ?').get('webinar');
+    const existingWebinar = db.prepare('SELECT id, plans FROM products WHERE slug = ?').get('webinar');
+    if (existingWebinar && (!existingWebinar.plans || existingWebinar.plans === '{}')) {
+        // Update existing webinar with plans if empty
+        const webinarPlans = JSON.stringify({
+            starter: {
+                name: 'Starter',
+                subtitle: 'Pour découvrir',
+                price: 'Gratuit',
+                pricePerUser: 0,
+                priceNote: 'jusqu\'à 50 participants',
+                features: [
+                    'Webinaires jusqu\'à 50 participants',
+                    'Durée max 45 minutes',
+                    'Partage d\'écran',
+                    'Chat en direct',
+                    'Personnalisation basique',
+                    '1 organisateur'
+                ],
+                ctaText: 'Démarrer gratuitement',
+                ctaLink: '#',
+                highlighted: false,
+                badge: '',
+                stripePriceId: ''
+            },
+            professional: {
+                name: 'Professional',
+                subtitle: 'Le plus populaire',
+                price: '€29.99',
+                pricePerUser: 29.99,
+                priceNote: '/organisateur/mois',
+                features: [
+                    'Tout Starter +',
+                    'Jusqu\'à 1 000 participants',
+                    'Durée illimitée',
+                    'Enregistrement & replay',
+                    'Q&A et sondages interactifs',
+                    'Analytics avancés',
+                    'Personnalisation complète (branding)',
+                    'Support prioritaire'
+                ],
+                ctaText: 'Essai gratuit 30 jours',
+                ctaLink: '#',
+                highlighted: true,
+                badge: 'Populaire',
+                stripePriceId: ''
+            },
+            enterprise: {
+                name: 'Enterprise',
+                subtitle: 'Sur mesure',
+                price: '€79.99',
+                pricePerUser: 79.99,
+                priceNote: '/organisateur/mois',
+                features: [
+                    'Tout Professional +',
+                    'Jusqu\'à 10 000 participants',
+                    'Multi-organisateurs illimités',
+                    'Streaming RTMP (YouTube, LinkedIn)',
+                    'API & intégrations avancées',
+                    'SSO & sécurité renforcée',
+                    'SLA 99.99% garanti',
+                    'Customer Success Manager dédié'
+                ],
+                ctaText: 'Contacter les ventes',
+                ctaLink: '#',
+                highlighted: false,
+                badge: '',
+                stripePriceId: ''
+            }
+        });
+        db.prepare('UPDATE products SET plans = ? WHERE slug = ?').run(webinarPlans, 'webinar');
+        console.log('Rainbow Webinar plans updated');
+    }
     if (!existingWebinar) {
         db.prepare(`
             INSERT INTO products (id, name, slug, shortDescription, fullDescription, benefits, gallery, plans)
@@ -139,7 +210,72 @@ function seed() {
                 'Advanced analytics and reporting'
             ]),
             JSON.stringify([]),
-            JSON.stringify({})
+            JSON.stringify({
+                starter: {
+                    name: 'Starter',
+                    subtitle: 'Pour découvrir',
+                    price: 'Gratuit',
+                    pricePerUser: 0,
+                    priceNote: 'jusqu\'à 50 participants',
+                    features: [
+                        'Webinaires jusqu\'à 50 participants',
+                        'Durée max 45 minutes',
+                        'Partage d\'écran',
+                        'Chat en direct',
+                        'Personnalisation basique',
+                        '1 organisateur'
+                    ],
+                    ctaText: 'Démarrer gratuitement',
+                    ctaLink: '#',
+                    highlighted: false,
+                    badge: '',
+                    stripePriceId: ''
+                },
+                professional: {
+                    name: 'Professional',
+                    subtitle: 'Le plus populaire',
+                    price: '€29.99',
+                    pricePerUser: 29.99,
+                    priceNote: '/organisateur/mois',
+                    features: [
+                        'Tout Starter +',
+                        'Jusqu\'à 1 000 participants',
+                        'Durée illimitée',
+                        'Enregistrement & replay',
+                        'Q&A et sondages interactifs',
+                        'Analytics avancés',
+                        'Personnalisation complète (branding)',
+                        'Support prioritaire'
+                    ],
+                    ctaText: 'Essai gratuit 30 jours',
+                    ctaLink: '#',
+                    highlighted: true,
+                    badge: 'Populaire',
+                    stripePriceId: ''
+                },
+                enterprise: {
+                    name: 'Enterprise',
+                    subtitle: 'Sur mesure',
+                    price: '€79.99',
+                    pricePerUser: 79.99,
+                    priceNote: '/organisateur/mois',
+                    features: [
+                        'Tout Professional +',
+                        'Jusqu\'à 10 000 participants',
+                        'Multi-organisateurs illimités',
+                        'Streaming RTMP (YouTube, LinkedIn)',
+                        'API & intégrations avancées',
+                        'SSO & sécurité renforcée',
+                        'SLA 99.99% garanti',
+                        'Customer Success Manager dédié'
+                    ],
+                    ctaText: 'Contacter les ventes',
+                    ctaLink: '#',
+                    highlighted: false,
+                    badge: '',
+                    stripePriceId: ''
+                }
+            })
         );
         console.log('Rainbow Webinar product seeded');
     }
