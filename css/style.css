@@ -100,6 +100,109 @@ input[type="number"] {
     color: #6b7280;
 }
 
+/* Scroll-triggered fade-in animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Subtle floating animation for hero elements */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+.float-animation {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Glassmorphism cards */
+.glass-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* Gradient text */
+.gradient-text {
+    background: linear-gradient(135deg, #4F6DF5 0%, #7C3AED 50%, #EC4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Hover lift effect for cards */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(79,109,245,0.12);
+}
+
+/* Animated gradient background for hero */
+.hero-gradient {
+    background: linear-gradient(135deg, #eef4ff 0%, #ffffff 40%, #f5f3ff 70%, #fdf2f8 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+}
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Pulse glow for CTA buttons */
+.glow-pulse {
+    box-shadow: 0 0 0 0 rgba(79,109,245,0.4);
+    animation: glowPulse 2.5s ease-in-out infinite;
+}
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(79,109,245,0.3); }
+    50% { box-shadow: 0 4px 30px rgba(79,109,245,0.5); }
+}
+
+/* Decorative blobs */
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+/* Feature card icon hover */
+.feature-icon-wrap {
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+.hover-lift:hover .feature-icon-wrap {
+    transform: scale(1.1);
+}
+
+/* Smooth section dividers */
+.section-wave {
+    position: relative;
+}
+.section-wave::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: inherit;
+    clip-path: ellipse(60% 100% at 50% 0%);
+}
+
 ::selection {
     background: rgba(79, 109, 245, 0.15);
 }
