@@ -361,6 +361,7 @@ app.get('/tarifs/rainbow-webinar', (req, res) => sendPage(req, res, path.join(__
 app.get('/tarifs/rainbow-collaboration', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'tarif-collaboration.html')));
 app.get('/verify-email', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'verify-email.html')));
 app.get('/reset-password', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'reset-password.html')));
+app.get('/bg-proposals', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'bg-proposals.html')));
 app.get('/about', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'about.html')));
 app.get('/legal', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'legal.html')));
 app.get('/privacy', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'privacy.html')));
