@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Proposals v2 — Rainbow Homepage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { brand: { 50:'#eef4ff',100:'#dce8ff',500:'#4F6DF5',600:'#3B5DE7',700:'#2D4ED9' } } } }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .proposal-card { cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .proposal-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .preview-box { height: 280px; border-radius: 16px; overflow: hidden; position: relative; }
+        .preview-nav { height: 40px; backdrop-filter: blur(8px); display: flex; align-items: center; padding: 0 16px; gap: 12px; font-size: 11px; }
+        .preview-content { padding: 24px; position: relative; z-index: 2; }
+        .preview-h1 { font-size: 22px; font-weight: 800; line-height: 1.2; }
+        .preview-p { font-size: 10px; margin-top: 8px; opacity: 0.7; }
+        .preview-btn { display: inline-block; margin-top: 12px; padding: 6px 16px; border-radius: 8px; font-size: 10px; font-weight: 600; }
+
+        /* ===== 11 — Neon Grid ===== */
+        .bg-11 {
+            background: #0a0a0a;
+            background-image:
+                linear-gradient(rgba(79,109,245,0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,109,245,0.07) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .bg-11::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0%, rgba(79,109,245,0.3) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(236,72,153,0.2) 0%, transparent 50%); }
+        .bg-11 .preview-nav { background: rgba(10,10,10,0.5); color: rgba(255,255,255,0.6); }
+
+        /* ===== 12 — Liquid Lava ===== */
+        .bg-12 {
+            background: #1a0a2e;
+        }
+        .bg-12::before { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255,95,31,0.4) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(168,85,247,0.4) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(236,72,153,0.25) 0%, transparent 50%);
+            animation: lavaMove 10s ease-in-out infinite alternate;
+        }
+        @keyframes lavaMove {
+            0% { transform: scale(1) rotate(0deg); }
+            100% { transform: scale(1.1) rotate(3deg); }
+        }
+        .bg-12 .preview-nav { background: rgba(26,10,46,0.5); color: rgba(255,255,255,0.6); }
+
+        /* ===== 13 — Frosted Glass Layers ===== */
+        .bg-13 {
+            background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 50%, #fce7f3 100%);
+        }
+        .bg-13::before { content:''; position:absolute; top:15%; left:5%; width:60%; height:60%; background: rgba(255,255,255,0.6); border-radius: 30% 70% 50% 50%; filter: blur(40px); backdrop-filter: blur(20px); }
+        .bg-13::after { content:''; position:absolute; bottom:10%; right:5%; width:40%; height:50%; background: rgba(167,139,250,0.15); border-radius: 60% 40% 30% 70%; filter: blur(30px); }
+        .bg-13 .preview-nav { background: rgba(255,255,255,0.4); color: rgba(30,41,59,0.6); }
+
+        /* ===== 14 — Cosmic Dust ===== */
+        .bg-14 {
+            background: linear-gradient(160deg, #020617 0%, #0f172a 100%);
+        }
+        .bg-14::before { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 15% 90%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 45% 85%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(ellipse at 50% 50%, rgba(79,109,245,0.15) 0%, transparent 70%),
+                radial-gradient(ellipse at 20% 30%, rgba(168,85,247,0.1) 0%, transparent 50%);
+        }
+        .bg-14 .preview-nav { background: rgba(2,6,23,0.5); color: rgba(255,255,255,0.6); }
+
+        /* ===== 15 — Prism Rainbow ===== */
+        .bg-15 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 20%, #f093fb 40%, #ffd452 60%, #43e97b 80%, #38f9d7 100%);
+            background-size: 300% 300%;
+            animation: prismShift 8s ease infinite;
+        }
+        @keyframes prismShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .bg-15::before { content:''; position:absolute; inset:0; background: rgba(0,0,0,0.15); }
+        .bg-15 .preview-nav { background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.8); }
+
+        /* ===== 16 — Geometric Waves ===== */
+        .bg-16 {
+            background: #0f172a;
+        }
+        .bg-16::before { content:''; position:absolute; inset:0;
+            background:
+                linear-gradient(170deg, transparent 40%, rgba(79,109,245,0.15) 40%, rgba(79,109,245,0.15) 42%, transparent 42%),
+                linear-gradient(170deg, transparent 50%, rgba(168,85,247,0.12) 50%, rgba(168,85,247,0.12) 52%, transparent 52%),
+                linear-gradient(170deg, transparent 60%, rgba(56,189,248,0.1) 60%, rgba(56,189,248,0.1) 62%, transparent 62%),
+                linear-gradient(170deg, transparent 70%, rgba(16,185,129,0.08) 70%, rgba(16,185,129,0.08) 72%, transparent 72%);
+        }
+        .bg-16 .preview-nav { background: rgba(15,23,42,0.6); color: rgba(255,255,255,0.6); }
+
+        /* ===== 17 — Holographic Silk ===== */
+        .bg-17 {
+            background: linear-gradient(135deg, #faf5ff 0%, #f0fdf4 25%, #ecfeff 50%, #fdf4ff 75%, #fff7ed 100%);
+            background-size: 200% 200%;
+            animation: silkShift 12s ease infinite;
+        }
+        @keyframes silkShift {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+        .bg-17::before { content:''; position:absolute; inset:0; background: linear-gradient(45deg, rgba(79,109,245,0.06) 0%, rgba(168,85,247,0.04) 50%, rgba(236,72,153,0.05) 100%); }
+        .bg-17 .preview-nav { background: rgba(255,255,255,0.5); color: rgba(30,41,59,0.5); }
+
+        /* ===== 18 — Cyberpunk Glow ===== */
+        .bg-18 {
+            background: #0a0a0a;
+        }
+        .bg-18::before { content:''; position:absolute; bottom:0; left:0; right:0; height:60%;
+            background:
+                linear-gradient(0deg, rgba(79,109,245,0.2) 0%, transparent 100%);
+        }
+        .bg-18::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+            background: linear-gradient(90deg, transparent 0%, #4F6DF5 20%, #a855f7 50%, #ec4899 80%, transparent 100%);
+            box-shadow: 0 0 20px rgba(79,109,245,0.5), 0 0 60px rgba(168,85,247,0.3);
+        }
+        .bg-18 .preview-nav { background: rgba(10,10,10,0.5); color: rgba(255,255,255,0.5); }
+
+        /* ===== 19 — Topographic Map ===== */
+        .bg-19 {
+            background: #f8fafc;
+            background-image:
+                repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 40px, rgba(79,109,245,0.03) 40px, rgba(79,109,245,0.03) 41px),
+                repeating-radial-gradient(circle at 30% 30%, transparent 0, transparent 60px, rgba(168,85,247,0.025) 60px, rgba(168,85,247,0.025) 61px),
+                repeating-radial-gradient(circle at 70% 70%, transparent 0, transparent 50px, rgba(16,185,129,0.02) 50px, rgba(16,185,129,0.02) 51px);
+        }
+        .bg-19::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 30% 20%, rgba(79,109,245,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.06) 0%, transparent 50%); }
+        .bg-19 .preview-nav { background: rgba(248,250,252,0.6); color: rgba(30,41,59,0.5); }
+
+        /* ===== 20 — Gradient Orbs ===== */
+        .bg-20 {
+            background: #0c0a1d;
+        }
+        .bg-20::before { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(circle 200px at 15% 25%, rgba(79,109,245,0.5) 0%, transparent 100%),
+                radial-gradient(circle 250px at 85% 15%, rgba(168,85,247,0.4) 0%, transparent 100%),
+                radial-gradient(circle 180px at 75% 75%, rgba(236,72,153,0.35) 0%, transparent 100%),
+                radial-gradient(circle 220px at 25% 80%, rgba(56,189,248,0.3) 0%, transparent 100%),
+                radial-gradient(circle 150px at 50% 50%, rgba(16,185,129,0.2) 0%, transparent 100%);
+            animation: orbsFloat 15s ease-in-out infinite alternate;
+        }
+        @keyframes orbsFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(10px, -15px) scale(1.02); }
+            66% { transform: translate(-5px, 10px) scale(0.98); }
+            100% { transform: translate(8px, 5px) scale(1.01); }
+        }
+        .bg-20 .preview-nav { background: rgba(12,10,29,0.5); color: rgba(255,255,255,0.5); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Background Proposals v2 — More Creative</h1>
+        <p class="text-gray-500 mb-2">Click on a proposal to see it full-screen. Press <kbd class="px-2 py-0.5 bg-gray-200 rounded text-xs">Esc</kbd> to close.</p>
+        <p class="text-sm text-brand-500 mb-8"><a href="/bg-proposals" class="underline">View first 10 proposals</a></p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- 11 -->
+            <div class="proposal-card" onclick="preview(11)">
+                <div class="preview-box bg-11">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br><span style="opacity:0.8">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">11. Neon Grid</p>
+                <p class="text-xs text-gray-500">Dark with glowing grid lines + radial accent glows. Techy.</p>
+            </div>
+
+            <!-- 12 -->
+            <div class="proposal-card" onclick="preview(12)">
+                <div class="preview-box bg-12">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br><span style="opacity:0.8">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-orange-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">12. Liquid Lava</p>
+                <p class="text-xs text-gray-500">Dark purple with animated orange-pink-violet blobs. Alive.</p>
+            </div>
+
+            <!-- 13 -->
+            <div class="proposal-card" onclick="preview(13)">
+                <div class="preview-box bg-13">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content" style="color:#1e293b;">
+                        <div class="preview-h1">Your cloud,<br><span style="color:#4F6DF5;">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">13. Frosted Glass Layers</p>
+                <p class="text-xs text-gray-500">Pastel blue-violet-pink with frosted organic shapes. Dreamy.</p>
+            </div>
+
+            <!-- 14 -->
+            <div class="proposal-card" onclick="preview(14)">
+                <div class="preview-box bg-14">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br><span style="opacity:0.8">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">14. Cosmic Dust</p>
+                <p class="text-xs text-gray-500">Deep space with star particles and nebula glow. Immersive.</p>
+            </div>
+
+            <!-- 15 -->
+            <div class="proposal-card" onclick="preview(15)">
+                <div class="preview-box bg-15">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br><span style="opacity:0.9">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-white text-purple-700">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">15. Prism Rainbow</p>
+                <p class="text-xs text-gray-500">Animated multi-color gradient shift. On-brand "Rainbow" name.</p>
+            </div>
+
+            <!-- 16 -->
+            <div class="proposal-card" onclick="preview(16)">
+                <div class="preview-box bg-16">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br><span style="opacity:0.8">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">16. Geometric Waves</p>
+                <p class="text-xs text-gray-500">Dark with diagonal translucent color bands. Structured elegance.</p>
+            </div>
+
+            <!-- 17 -->
+            <div class="proposal-card" onclick="preview(17)">
+                <div class="preview-box bg-17">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content" style="color:#1e293b;">
+                        <div class="preview-h1">Your cloud,<br><span style="color:#7c3aed;">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-violet-600 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">17. Holographic Silk</p>
+                <p class="text-xs text-gray-500">Animated iridescent pastels. Light, luxurious, Apple-like.</p>
+            </div>
+
+            <!-- 18 -->
+            <div class="proposal-card" onclick="preview(18)">
+                <div class="preview-box bg-18">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br><span style="opacity:0.8">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">18. Cyberpunk Glow</p>
+                <p class="text-xs text-gray-500">Pure black with neon gradient line at bottom. Minimal & edgy.</p>
+            </div>
+
+            <!-- 19 -->
+            <div class="proposal-card" onclick="preview(19)">
+                <div class="preview-box bg-19">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content" style="color:#1e293b;">
+                        <div class="preview-h1">Your cloud,<br><span style="color:#4F6DF5;">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">19. Topographic Map</p>
+                <p class="text-xs text-gray-500">Light with concentric circle patterns. Subtle texture, very clean.</p>
+            </div>
+
+            <!-- 20 -->
+            <div class="proposal-card" onclick="preview(20)">
+                <div class="preview-box bg-20">
+                    <div class="preview-nav">Rainbow &nbsp; Home &nbsp; Products &nbsp; Tarifs</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br><span style="opacity:0.9">your way.</span></div>
+                        <div class="preview-p">Messaging, video, telephony — one secure platform.</div>
+                        <span class="preview-btn bg-cyan-400 text-gray-900">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">20. Gradient Orbs</p>
+                <p class="text-xs text-gray-500">Dark with animated floating color spheres. Mesmerizing & alive.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Full-screen preview overlay -->
+    <div id="fullpreview" class="fixed inset-0 z-50 hidden" onclick="closePreview()">
+        <div id="fullpreview-bg" class="absolute inset-0"></div>
+        <div class="absolute inset-0 flex items-center justify-center z-10">
+            <div class="text-center max-w-2xl px-8" id="preview-content-wrap" onclick="event.stopPropagation()">
+                <p class="text-sm font-medium opacity-60 mb-4" id="preview-label"></p>
+                <h1 class="text-5xl sm:text-6xl font-extrabold leading-tight">Your cloud,<br><span style="opacity:0.85" id="preview-accent">your way.</span></h1>
+                <p class="mt-6 text-lg opacity-70 max-w-lg mx-auto">Messaging, video, telephony and marketplace — one secure platform for 88+ countries.</p>
+                <div class="mt-10 flex gap-4 justify-center">
+                    <span id="preview-btn1" class="px-8 py-3.5 rounded-xl font-semibold text-sm shadow-lg">Start Free</span>
+                    <span id="preview-btn2" class="px-8 py-3.5 rounded-xl border-2 font-medium text-sm">Watch Demo</span>
+                </div>
+                <p class="mt-12 text-xs opacity-40">Click anywhere or press Esc to close</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var names = {
+            11:'Neon Grid', 12:'Liquid Lava', 13:'Frosted Glass Layers', 14:'Cosmic Dust',
+            15:'Prism Rainbow', 16:'Geometric Waves', 17:'Holographic Silk', 18:'Cyberpunk Glow',
+            19:'Topographic Map', 20:'Gradient Orbs'
+        };
+        var lightBgs = [13, 17, 19];
+
+        function preview(n) {
+            var el = document.getElementById('fullpreview');
+            var bg = document.getElementById('fullpreview-bg');
+            var wrap = document.getElementById('preview-content-wrap');
+            var accent = document.getElementById('preview-accent');
+            var btn1 = document.getElementById('preview-btn1');
+            var btn2 = document.getElementById('preview-btn2');
+
+            bg.className = 'absolute inset-0 bg-' + n;
+            document.getElementById('preview-label').textContent = 'Proposal ' + n + ' — ' + names[n];
+
+            if (lightBgs.indexOf(n) !== -1) {
+                wrap.style.color = '#1e293b';
+                accent.style.color = '#4F6DF5';
+                btn1.className = 'px-8 py-3.5 rounded-xl font-semibold text-sm shadow-lg bg-brand-500 text-white';
+                btn2.className = 'px-8 py-3.5 rounded-xl border-2 border-gray-300 font-medium text-sm text-gray-700';
+            } else {
+                wrap.style.color = '#ffffff';
+                accent.style.color = '';
+                accent.style.opacity = '0.85';
+                btn1.className = 'px-8 py-3.5 rounded-xl font-semibold text-sm shadow-lg bg-white text-gray-900';
+                btn2.className = 'px-8 py-3.5 rounded-xl border-2 border-white/30 font-medium text-sm text-white';
+            }
+
+            el.classList.remove('hidden');
+        }
+
+        function closePreview() {
+            document.getElementById('fullpreview').classList.add('hidden');
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closePreview();
+        });
+    </script>
+</body>
+</html>
