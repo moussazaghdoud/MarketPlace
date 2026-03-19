@@ -151,7 +151,7 @@ input[type="number"] {
 
 /* Animated gradient background for hero */
 .hero-gradient {
-    background: linear-gradient(135deg, #eef4ff 0%, #ffffff 40%, #f5f3ff 70%, #fdf2f8 100%);
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ffd452 100%);
     background-size: 200% 200%;
     animation: gradientShift 8s ease infinite;
 }
