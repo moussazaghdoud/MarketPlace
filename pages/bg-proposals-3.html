@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Proposals v3 — Disruptive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { brand: { 50:'#eef4ff',100:'#dce8ff',500:'#4F6DF5',600:'#3B5DE7',700:'#2D4ED9' } } } }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .proposal-card { cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .proposal-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .preview-box { height: 280px; border-radius: 16px; overflow: hidden; position: relative; }
+        .preview-nav { height: 40px; backdrop-filter: blur(8px); display: flex; align-items: center; padding: 0 16px; gap: 12px; font-size: 11px; }
+        .preview-content { padding: 24px; position: relative; z-index: 2; }
+        .preview-h1 { font-size: 22px; font-weight: 800; line-height: 1.2; }
+        .preview-p { font-size: 10px; margin-top: 8px; opacity: 0.7; }
+        .preview-btn { display: inline-block; margin-top: 12px; padding: 6px 16px; border-radius: 8px; font-size: 10px; font-weight: 600; }
+
+        /* ===== 21 — Plasma Storm ===== */
+        .bg-21 {
+            background: #000;
+        }
+        .bg-21::before { content:''; position:absolute; inset:0;
+            background:
+                conic-gradient(from 0deg at 30% 40%, #4F6DF5, #a855f7, #ec4899, #f59e0b, #10b981, #06b6d4, #4F6DF5);
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: plasmaRotate 12s linear infinite;
+        }
+        @keyframes plasmaRotate {
+            to { transform: rotate(360deg); }
+        }
+        .bg-21 .preview-nav { background: rgba(0,0,0,0.4); color: rgba(255,255,255,0.6); }
+
+        /* ===== 22 — Shattered Glass ===== */
+        .bg-22 {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+        }
+        .bg-22::before { content:''; position:absolute; inset:0;
+            background:
+                linear-gradient(60deg, transparent 30%, rgba(79,109,245,0.15) 30%, rgba(79,109,245,0.15) 31%, transparent 31%),
+                linear-gradient(120deg, transparent 45%, rgba(168,85,247,0.12) 45%, rgba(168,85,247,0.12) 46%, transparent 46%),
+                linear-gradient(80deg, transparent 55%, rgba(236,72,153,0.1) 55%, rgba(236,72,153,0.1) 56%, transparent 56%),
+                linear-gradient(150deg, transparent 20%, rgba(56,189,248,0.08) 20%, rgba(56,189,248,0.08) 21%, transparent 21%),
+                linear-gradient(40deg, transparent 65%, rgba(16,185,129,0.07) 65%, rgba(16,185,129,0.07) 66%, transparent 66%),
+                linear-gradient(110deg, transparent 75%, rgba(245,158,11,0.06) 75%, rgba(245,158,11,0.06) 76%, transparent 76%);
+        }
+        .bg-22 .preview-nav { background: rgba(15,23,42,0.5); color: rgba(255,255,255,0.5); }
+
+        /* ===== 23 — Black Hole ===== */
+        .bg-23 {
+            background: #000;
+        }
+        .bg-23::before { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(circle 120px at 50% 50%, #000 30%, rgba(79,109,245,0.6) 50%, rgba(168,85,247,0.4) 65%, rgba(236,72,153,0.2) 80%, transparent 100%);
+            animation: blackHolePulse 4s ease-in-out infinite;
+        }
+        @keyframes blackHolePulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
+        .bg-23 .preview-nav { background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.4); }
+
+        /* ===== 24 — Acid Trip ===== */
+        .bg-24 {
+            background: #000;
+        }
+        .bg-24::before { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(ellipse 300px 200px at 20% 30%, rgba(0,255,128,0.4), transparent),
+                radial-gradient(ellipse 250px 300px at 80% 20%, rgba(255,0,128,0.4), transparent),
+                radial-gradient(ellipse 350px 250px at 50% 80%, rgba(0,128,255,0.4), transparent),
+                radial-gradient(ellipse 200px 350px at 10% 70%, rgba(255,255,0,0.3), transparent),
+                radial-gradient(ellipse 280px 180px at 90% 70%, rgba(128,0,255,0.35), transparent);
+            mix-blend-mode: screen;
+            animation: acidShift 10s ease-in-out infinite alternate;
+        }
+        @keyframes acidShift {
+            0% { filter: hue-rotate(0deg) blur(60px); }
+            50% { filter: hue-rotate(60deg) blur(70px); }
+            100% { filter: hue-rotate(120deg) blur(60px); }
+        }
+        .bg-24 .preview-nav { background: rgba(0,0,0,0.4); color: rgba(255,255,255,0.6); }
+
+        /* ===== 25 — Morse Code ===== */
+        .bg-25 {
+            background: #f8fafc;
+        }
+        .bg-25::before { content:''; position:absolute; inset:0;
+            background-image:
+                repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(79,109,245,0.06) 20px, rgba(79,109,245,0.06) 22px, transparent 22px, transparent 30px, rgba(79,109,245,0.06) 30px, rgba(79,109,245,0.06) 40px, transparent 40px, transparent 50px),
+                repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(168,85,247,0.04) 30px, rgba(168,85,247,0.04) 31px, transparent 31px, transparent 60px);
+            animation: morseScroll 20s linear infinite;
+        }
+        @keyframes morseScroll {
+            to { background-position: 1000px 500px; }
+        }
+        .bg-25::after { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 50%, rgba(79,109,245,0.05) 0%, transparent 70%); }
+        .bg-25 .preview-nav { background: rgba(248,250,252,0.7); color: rgba(30,41,59,0.4); }
+
+        /* ===== 26 — Burning Edge ===== */
+        .bg-26 {
+            background: #0a0a0a;
+        }
+        .bg-26::before { content:''; position:absolute; inset:-2px;
+            background: conic-gradient(from 180deg, #f59e0b, #ef4444, #ec4899, #a855f7, #4F6DF5, #06b6d4, #10b981, #f59e0b);
+            animation: borderBurn 4s linear infinite;
+            border-radius: inherit;
+        }
+        @keyframes borderBurn {
+            to { filter: hue-rotate(360deg); }
+        }
+        .bg-26::after { content:''; position:absolute; inset: 3px; background: #0a0a0a; border-radius: inherit; }
+        .bg-26 .preview-nav { background: transparent; color: rgba(255,255,255,0.5); position: relative; z-index: 3; }
+        .bg-26 .preview-content { z-index: 3; }
+
+        /* ===== 27 — Matrix Rain ===== */
+        .bg-27 {
+            background: #020a04;
+        }
+        .bg-27::before { content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(180deg,
+                    transparent 0px, transparent 18px,
+                    rgba(0,255,65,0.03) 18px, rgba(0,255,65,0.03) 20px
+                ),
+                radial-gradient(ellipse at 50% 30%, rgba(0,255,65,0.08) 0%, transparent 60%);
+        }
+        .bg-27::after { content:''; position:absolute; inset:0;
+            background:
+                linear-gradient(180deg, rgba(0,255,65,0.04) 0%, transparent 3%, transparent 97%, rgba(0,255,65,0.04) 100%);
+            animation: scanline 3s linear infinite;
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .bg-27 .preview-nav { background: rgba(2,10,4,0.6); color: rgba(0,255,65,0.5); }
+        .bg-27 .preview-content { color: #00ff41; }
+        .bg-27 .preview-h1 { color: #00ff41; text-shadow: 0 0 20px rgba(0,255,65,0.3); }
+        .bg-27 .preview-p { color: rgba(0,255,65,0.6); }
+
+        /* ===== 28 — Split Horizon ===== */
+        .bg-28 {
+            background: linear-gradient(180deg, #0f172a 0%, #0f172a 50%, #4F6DF5 50%, #7c3aed 100%);
+        }
+        .bg-28::before { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(ellipse 600px 100px at 50% 50%, rgba(255,255,255,0.08) 0%, transparent 100%);
+        }
+        .bg-28 .preview-nav { background: rgba(15,23,42,0.5); color: rgba(255,255,255,0.5); }
+
+        /* ===== 29 — Noise Texture ===== */
+        .bg-29 {
+            background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        .bg-29::before { content:''; position:absolute; inset:0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
+        }
+        .bg-29::after { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(79,109,245,0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(168,85,247,0.15) 0%, transparent 50%);
+        }
+        .bg-29 .preview-nav { background: rgba(26,26,46,0.5); color: rgba(255,255,255,0.5); }
+
+        /* ===== 30 — Chromatic Explosion ===== */
+        .bg-30 {
+            background: #000;
+        }
+        .bg-30::before { content:''; position:absolute; inset:0;
+            background:
+                radial-gradient(circle 80px at 25% 25%, rgba(255,59,48,0.7), transparent),
+                radial-gradient(circle 90px at 50% 15%, rgba(255,149,0,0.6), transparent),
+                radial-gradient(circle 70px at 75% 30%, rgba(255,204,0,0.6), transparent),
+                radial-gradient(circle 85px at 85% 55%, rgba(52,199,89,0.6), transparent),
+                radial-gradient(circle 75px at 65% 75%, rgba(0,122,255,0.7), transparent),
+                radial-gradient(circle 95px at 35% 70%, rgba(88,86,214,0.6), transparent),
+                radial-gradient(circle 80px at 15% 55%, rgba(175,82,222,0.6), transparent),
+                radial-gradient(circle 70px at 50% 50%, rgba(255,45,85,0.5), transparent);
+            filter: blur(50px);
+            animation: chromaFloat 12s ease-in-out infinite alternate;
+        }
+        @keyframes chromaFloat {
+            0% { transform: scale(1) translate(0,0); }
+            25% { transform: scale(1.05) translate(15px,-10px); }
+            50% { transform: scale(0.95) translate(-10px,15px); }
+            75% { transform: scale(1.03) translate(5px,-5px); }
+            100% { transform: scale(1) translate(-8px,8px); }
+        }
+        .bg-30 .preview-nav { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Background Proposals v3 — Disruptive</h1>
+        <p class="text-gray-500 mb-2">Click to preview full-screen. Press <kbd class="px-2 py-0.5 bg-gray-200 rounded text-xs">Esc</kbd> to close.</p>
+        <p class="text-sm text-brand-500 mb-8"><a href="/bg-proposals" class="underline">v1</a> &middot; <a href="/bg-proposals-2" class="underline">v2</a></p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <div class="proposal-card" onclick="preview(21)">
+                <div class="preview-box bg-21">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-white text-gray-900">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">21. Plasma Storm</p>
+                <p class="text-xs text-gray-500">Rotating conic rainbow gradient behind dark overlay. Alive & bold.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(22)">
+                <div class="preview-box bg-22">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">22. Shattered Glass</p>
+                <p class="text-xs text-gray-500">Dark with criss-crossing translucent color shards. Fractured light.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(23)">
+                <div class="preview-box bg-23">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">23. Black Hole</p>
+                <p class="text-xs text-gray-500">Pulsating ring of color around a dark center. Gravitational pull.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(24)">
+                <div class="preview-box bg-24">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-white text-gray-900">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">24. Acid Trip</p>
+                <p class="text-xs text-gray-500">Neon blobs with animated hue-rotation. Psychedelic & unforgettable.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(25)">
+                <div class="preview-box bg-25">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content" style="color:#1e293b;">
+                        <div class="preview-h1">Your cloud,<br><span style="color:#4F6DF5;">your way.</span></div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">25. Morse Code</p>
+                <p class="text-xs text-gray-500">Light with scrolling dash-dot pattern. Subtle communication metaphor.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(26)">
+                <div class="preview-box bg-26">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">26. Burning Edge</p>
+                <p class="text-xs text-gray-500">Black center with rotating rainbow border glow. Framed energy.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(27)">
+                <div class="preview-box bg-27">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content">
+                        <div class="preview-h1" style="color:#00ff41;text-shadow:0 0 20px rgba(0,255,65,0.3);">Your cloud,<br>your way.</div>
+                        <div class="preview-p" style="color:rgba(0,255,65,0.6);">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn" style="background:#00ff41;color:#000;">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">27. Matrix Rain</p>
+                <p class="text-xs text-gray-500">Green-on-black with scanlines. Retro-hacker meets enterprise.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(28)">
+                <div class="preview-box bg-28">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-white text-brand-600">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">28. Split Horizon</p>
+                <p class="text-xs text-gray-500">Sharp 50/50 dark-to-brand split with horizon glow. Dramatic contrast.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(29)">
+                <div class="preview-box bg-29">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-brand-500 text-white">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">29. Noise Texture</p>
+                <p class="text-xs text-gray-500">Dark gradient with SVG grain texture + color orbs. Tactile & premium.</p>
+            </div>
+
+            <div class="proposal-card" onclick="preview(30)">
+                <div class="preview-box bg-30">
+                    <div class="preview-nav">Rainbow</div>
+                    <div class="preview-content text-white">
+                        <div class="preview-h1">Your cloud,<br>your way.</div>
+                        <div class="preview-p">One secure platform for 88+ countries.</div>
+                        <span class="preview-btn bg-white text-gray-900">Start Free</span>
+                    </div>
+                </div>
+                <p class="mt-3 font-semibold text-sm">30. Chromatic Explosion</p>
+                <p class="text-xs text-gray-500">Floating blurred color orbs on black. Moving, breathing, alive.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Full-screen preview -->
+    <div id="fullpreview" class="fixed inset-0 z-50 hidden" onclick="closePreview()">
+        <div id="fullpreview-bg" class="absolute inset-0"></div>
+        <div class="absolute inset-0 flex items-center justify-center z-10">
+            <div class="text-center max-w-2xl px-8" id="preview-wrap" onclick="event.stopPropagation()">
+                <p class="text-sm font-medium opacity-60 mb-4" id="preview-label"></p>
+                <h1 class="text-5xl sm:text-6xl font-extrabold leading-tight" id="preview-title">Your cloud,<br><span id="preview-accent">your way.</span></h1>
+                <p class="mt-6 text-lg opacity-70 max-w-lg mx-auto" id="preview-desc">Messaging, video, telephony and marketplace — one secure platform for 88+ countries.</p>
+                <div class="mt-10 flex gap-4 justify-center">
+                    <span id="pb1" class="px-8 py-3.5 rounded-xl font-semibold text-sm shadow-lg">Start Free</span>
+                    <span id="pb2" class="px-8 py-3.5 rounded-xl border-2 font-medium text-sm">Watch Demo</span>
+                </div>
+                <p class="mt-12 text-xs opacity-40">Click anywhere or Esc to close</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var names = {
+            21:'Plasma Storm',22:'Shattered Glass',23:'Black Hole',24:'Acid Trip',25:'Morse Code',
+            26:'Burning Edge',27:'Matrix Rain',28:'Split Horizon',29:'Noise Texture',30:'Chromatic Explosion'
+        };
+        var lightBgs = [25];
+        var matrixBg = [27];
+
+        function preview(n) {
+            var el = document.getElementById('fullpreview');
+            document.getElementById('fullpreview-bg').className = 'absolute inset-0 bg-' + n;
+            document.getElementById('preview-label').textContent = 'Proposal ' + n + ' — ' + names[n];
+            var wrap = document.getElementById('preview-wrap');
+            var title = document.getElementById('preview-title');
+            var accent = document.getElementById('preview-accent');
+            var desc = document.getElementById('preview-desc');
+            var b1 = document.getElementById('pb1');
+            var b2 = document.getElementById('pb2');
+
+            if (matrixBg.indexOf(n) !== -1) {
+                wrap.style.color = '#00ff41';
+                title.style.textShadow = '0 0 30px rgba(0,255,65,0.4)';
+                accent.style.color = '#00ff41';
+                desc.style.color = 'rgba(0,255,65,0.6)';
+                b1.className = 'px-8 py-3.5 rounded-xl font-semibold text-sm shadow-lg'; b1.style.cssText = 'background:#00ff41;color:#000;';
+                b2.className = 'px-8 py-3.5 rounded-xl border-2 border-green-500/30 font-medium text-sm text-green-400';
+                b2.style.cssText = '';
+            } else if (lightBgs.indexOf(n) !== -1) {
+                wrap.style.color = '#1e293b'; title.style.textShadow = '';
+                accent.style.color = '#4F6DF5'; desc.style.color = '';
+                b1.className = 'px-8 py-3.5 rounded-xl font-semibold text-sm shadow-lg bg-brand-500 text-white'; b1.style.cssText = '';
+                b2.className = 'px-8 py-3.5 rounded-xl border-2 border-gray-300 font-medium text-sm text-gray-700'; b2.style.cssText = '';
+            } else {
+                wrap.style.color = '#fff'; title.style.textShadow = '';
+                accent.style.color = ''; accent.style.opacity = '0.85'; desc.style.color = '';
+                b1.className = 'px-8 py-3.5 rounded-xl font-semibold text-sm shadow-lg bg-white text-gray-900'; b1.style.cssText = '';
+                b2.className = 'px-8 py-3.5 rounded-xl border-2 border-white/30 font-medium text-sm text-white'; b2.style.cssText = '';
+            }
+            el.classList.remove('hidden');
+        }
+        function closePreview() { document.getElementById('fullpreview').classList.add('hidden'); }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePreview(); });
+    </script>
+</body>
+</html>

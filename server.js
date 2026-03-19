@@ -363,6 +363,7 @@ app.get('/verify-email', (req, res) => sendPage(req, res, path.join(__dirname, '
 app.get('/reset-password', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'reset-password.html')));
 app.get('/bg-proposals', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'bg-proposals.html')));
 app.get('/bg-proposals-2', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'bg-proposals-2.html')));
+app.get('/bg-proposals-3', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'bg-proposals-3.html')));
 app.get('/about', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'about.html')));
 app.get('/legal', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'legal.html')));
 app.get('/privacy', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'privacy.html')));
