@@ -358,6 +358,7 @@ app.get('/products', (req, res) => sendPage(req, res, path.join(__dirname, 'page
 app.get('/product/:slug', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'product.html')));
 app.get('/offers', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'offers.html')));
 app.get('/products/rainbow-collaboration', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'product-collaboration.html')));
+app.get('/products/rainbow-webinar', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'product-webinar.html')));
 app.get('/tarifs/rainbow-webinar', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'tarif-webinar.html')));
 app.get('/tarifs/rainbow-collaboration', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'tarif-collaboration.html')));
 app.get('/verify-email', (req, res) => sendPage(req, res, path.join(__dirname, 'pages', 'verify-email.html')));
