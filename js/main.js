@@ -106,7 +106,9 @@ function renderHero(hero) {
 
     if (hero.image) {
         var heroImg = document.getElementById('hero-image');
-        if (heroImg) heroImg.src = hero.image;
+        var imgPath = hero.image;
+        if (imgPath && imgPath.charAt(0) !== '/' && imgPath.indexOf('http') !== 0) imgPath = '/' + imgPath;
+        if (heroImg) heroImg.src = imgPath;
     }
 
     var badges = document.getElementById('hero-trust-badges');
@@ -202,10 +204,12 @@ function renderScreenshots(screenshots) {
     grid.innerHTML = '';
 
     screenshots.items.forEach(function (s) {
+        var imgSrc = s.image;
+        if (imgSrc && imgSrc.charAt(0) !== '/' && imgSrc.indexOf('http') !== 0) imgSrc = '/' + imgSrc;
         var div = document.createElement('div');
         div.className = 'text-center';
         div.innerHTML =
-            '<img src="' + escapeHtml(s.image) + '" alt="' + escapeHtml(s.alt) + '" class="rounded-xl border border-gray-200 shadow-sm w-full mb-3">' +
+            '<img src="' + escapeHtml(imgSrc) + '" alt="' + escapeHtml(s.alt) + '" class="rounded-xl border border-gray-200 shadow-sm w-full mb-3">' +
             '<p class="text-sm font-medium text-gray-700">' + escapeHtml(s.label) + '</p>';
         grid.appendChild(div);
     });
