@@ -287,6 +287,54 @@
             var sw = document.getElementById('lang-switcher');
             if (sw && !sw.contains(e.target)) sw.classList.remove('open');
         });
+
+        // Override content with Webinar-specific text after main.js loads
+        setTimeout(function() {
+            document.getElementById('hero-title').innerHTML = "Rainbow Webinar,<br><span class='text-brand-500'>engage your audience.</span>";
+            document.getElementById('hero-description').textContent = "Host professional webinars, virtual events, and training sessions for up to 10,000 participants with interactive Q&A, polls, and advanced analytics.";
+            document.getElementById('hero-cta-primary').textContent = "Start Free";
+            document.getElementById('hero-cta-secondary').textContent = "Watch Demo";
+
+            var vh = document.getElementById('video-heading');
+            if (vh) vh.textContent = "See Rainbow Webinar in action";
+            var vs = document.getElementById('video-subheading');
+            if (vs) vs.textContent = "Watch how Rainbow Webinar transforms your online events.";
+
+            var fh = document.getElementById('features-heading');
+            if (fh) fh.textContent = "What you can do with Rainbow Webinar";
+            var fs = document.getElementById('features-subheading');
+            if (fs) fs.textContent = "Everything you need to host engaging online events.";
+
+            var fg = document.getElementById('features-grid');
+            if (fg) {
+                var checkSvg = function(path) {
+                    return '<div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 feature-icon-wrap" style="background:var(--bg)"><svg class="w-5 h-5" style="color:var(--fg)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="' + path + '"/></svg></div>';
+                };
+                var features = [
+                    { title: "Up to 10,000 participants", desc: "Scale from small team meetings to large-scale virtual events with ease.", bg: "#eef4ff", fg: "#4F6DF5", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" },
+                    { title: "Interactive Q&A & polls", desc: "Engage your audience in real-time with live questions, polls, and reactions.", bg: "#f5f3ff", fg: "#7c3aed", icon: "M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+                    { title: "HD video streaming", desc: "Crystal-clear video quality with adaptive bitrate for any connection speed.", bg: "#fce7f3", fg: "#ec4899", icon: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" },
+                    { title: "Recording & replay", desc: "Automatically record sessions and share replays with attendees who missed the live event.", bg: "#ecfdf5", fg: "#10b981", icon: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" },
+                    { title: "Custom branding", desc: "Personalize your event with your logo, colors, and branded registration pages.", bg: "#fffbeb", fg: "#f59e0b", icon: "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" },
+                    { title: "Advanced analytics", desc: "Track attendance, engagement, poll results, and generate detailed post-event reports.", bg: "#ecfeff", fg: "#06b6d4", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" }
+                ];
+                fg.innerHTML = '';
+                features.forEach(function(f) {
+                    var card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl border border-gray-100 p-6 hover-lift';
+                    card.innerHTML = '<div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 feature-icon-wrap" style="background:' + f.bg + '"><svg class="w-5 h-5" style="color:' + f.fg + '" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="' + f.icon + '"/></svg></div>' +
+                        '<h4 class="font-semibold text-gray-900 mb-2">' + f.title + '</h4>' +
+                        '<p class="text-sm text-gray-500 leading-relaxed">' + f.desc + '</p>';
+                    fg.appendChild(card);
+                });
+            }
+
+            var sh = document.getElementById('screenshots-heading');
+            if (sh) sh.textContent = "Built for professional events";
+
+            var faqH = document.getElementById('faq-heading');
+            if (faqH) faqH.textContent = "Frequently asked questions";
+        }, 500);
     </script>
 </body>
 </html>
